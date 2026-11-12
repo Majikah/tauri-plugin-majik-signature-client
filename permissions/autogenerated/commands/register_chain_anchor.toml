@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-register-chain-anchor"
+description = "Enables the register_chain_anchor command without any pre-configured scope."
+commands.allow = ["register_chain_anchor"]
+
+[[permission]]
+identifier = "deny-register-chain-anchor"
+description = "Denies the register_chain_anchor command without any pre-configured scope."
+commands.deny = ["register_chain_anchor"]

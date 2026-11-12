@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-get-contact-by-address"
+description = "Enables the get_contact_by_address command without any pre-configured scope."
+commands.allow = ["get_contact_by_address"]
+
+[[permission]]
+identifier = "deny-get-contact-by-address"
+description = "Denies the get_contact_by_address command without any pre-configured scope."
+commands.deny = ["get_contact_by_address"]

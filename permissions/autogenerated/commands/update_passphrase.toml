@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-update-passphrase"
+description = "Enables the update_passphrase command without any pre-configured scope."
+commands.allow = ["update_passphrase"]
+
+[[permission]]
+identifier = "deny-update-passphrase"
+description = "Denies the update_passphrase command without any pre-configured scope."
+commands.deny = ["update_passphrase"]

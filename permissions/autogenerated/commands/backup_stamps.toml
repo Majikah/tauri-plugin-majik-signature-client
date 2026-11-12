@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-backup-stamps"
+description = "Enables the backup_stamps command without any pre-configured scope."
+commands.allow = ["backup_stamps"]
+
+[[permission]]
+identifier = "deny-backup-stamps"
+description = "Denies the backup_stamps command without any pre-configured scope."
+commands.deny = ["backup_stamps"]

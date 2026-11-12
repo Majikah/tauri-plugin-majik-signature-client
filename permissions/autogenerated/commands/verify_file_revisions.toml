@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-verify-file-revisions"
+description = "Enables the verify_file_revisions command without any pre-configured scope."
+commands.allow = ["verify_file_revisions"]
+
+[[permission]]
+identifier = "deny-verify-file-revisions"
+description = "Denies the verify_file_revisions command without any pre-configured scope."
+commands.deny = ["verify_file_revisions"]

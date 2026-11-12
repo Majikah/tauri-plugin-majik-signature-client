@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-replace-passphrase"
+description = "Enables the replace_passphrase command without any pre-configured scope."
+commands.allow = ["replace_passphrase"]
+
+[[permission]]
+identifier = "deny-replace-passphrase"
+description = "Denies the replace_passphrase command without any pre-configured scope."
+commands.deny = ["replace_passphrase"]

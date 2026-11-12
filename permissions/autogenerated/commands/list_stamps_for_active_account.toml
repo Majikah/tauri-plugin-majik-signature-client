@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-list-stamps-for-active-account"
+description = "Enables the list_stamps_for_active_account command without any pre-configured scope."
+commands.allow = ["list_stamps_for_active_account"]
+
+[[permission]]
+identifier = "deny-list-stamps-for-active-account"
+description = "Denies the list_stamps_for_active_account command without any pre-configured scope."
+commands.deny = ["list_stamps_for_active_account"]

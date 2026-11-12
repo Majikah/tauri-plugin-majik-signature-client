@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-hydrate"
+description = "Enables the hydrate command without any pre-configured scope."
+commands.allow = ["hydrate"]
+
+[[permission]]
+identifier = "deny-hydrate"
+description = "Denies the hydrate command without any pre-configured scope."
+commands.deny = ["hydrate"]

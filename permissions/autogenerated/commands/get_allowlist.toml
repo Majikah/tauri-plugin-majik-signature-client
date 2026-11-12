@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-get-allowlist"
+description = "Enables the get_allowlist command without any pre-configured scope."
+commands.allow = ["get_allowlist"]
+
+[[permission]]
+identifier = "deny-get-allowlist"
+description = "Denies the get_allowlist command without any pre-configured scope."
+commands.deny = ["get_allowlist"]

@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-add-contact-to-favorites"
+description = "Enables the add_contact_to_favorites command without any pre-configured scope."
+commands.allow = ["add_contact_to_favorites"]
+
+[[permission]]
+identifier = "deny-add-contact-to-favorites"
+description = "Denies the add_contact_to_favorites command without any pre-configured scope."
+commands.deny = ["add_contact_to_favorites"]

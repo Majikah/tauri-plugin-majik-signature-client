@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-batch-sign-files"
+description = "Enables the batch_sign_files command without any pre-configured scope."
+commands.allow = ["batch_sign_files"]
+
+[[permission]]
+identifier = "deny-batch-sign-files"
+description = "Denies the batch_sign_files command without any pre-configured scope."
+commands.deny = ["batch_sign_files"]

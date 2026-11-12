@@ -1,0 +1,34 @@
+[package]
+name = "tauri-plugin-majik-signature-client"
+version = "1.2.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Tauri v2 plugin exposing Majikah's Rust signature client to webview applications."
+license = "Apache-2.0"
+links = "tauri-plugin-majik-signature-client"
+readme = "README.md"
+authors = ["Majikah Solutions OPC"]
+keywords = ["tauri", "tauri-plugin", "cryptography", "signatures", "majikah"]
+categories = ["gui", "cryptography"]
+include = [
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "PUBLISHING.md",
+    "build.rs",
+    "gen.py",
+    "src/**/*.rs",
+    "permissions/**/*.toml",
+    "contract/commands.json",
+    "tests/*.py",
+]
+
+[dependencies]
+majik-signature-client = "1.2.0"
+tauri = "2"
+rusqlite = { version = "0.40", features = ["bundled"] }
+zeroize = { version = "1", features = ["serde"] }
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }

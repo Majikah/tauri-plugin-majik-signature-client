@@ -1,0 +1,714 @@
+{
+  "plugin": "majik-signature-client",
+  "version": "1.2.0",
+  "eventChannel": "majik-signature-client:event",
+  "eventTypes": [
+    "new-account",
+    "removed-account",
+    "updated-account",
+    "active-account-change",
+    "unlock",
+    "lock",
+    "error",
+    "restore-backup",
+    "sign",
+    "verify",
+    "new-stamp",
+    "removed-stamp",
+    "new-contact",
+    "new-contact-group",
+    "removed-contact",
+    "removed-contact-group",
+    "contact-group-change",
+    "history-log",
+    "activity-log"
+  ],
+  "commandCount": 137,
+  "commands": [
+    {
+      "name": "open_session",
+      "parameters": "",
+      "result": "ops::SigOpenedSession"
+    },
+    {
+      "name": "get_snapshot",
+      "parameters": "",
+      "result": "majik_signature_client::majik_key_client::ipc::Snapshot"
+    },
+    {
+      "name": "snapshot",
+      "parameters": "",
+      "result": "majik_signature_client::majik_key_client::ipc::Snapshot"
+    },
+    {
+      "name": "hydrate",
+      "parameters": "",
+      "result": "majik_signature_client::HydrateReport"
+    },
+    {
+      "name": "generate_mnemonic",
+      "parameters": "strength: u32, language: Option<majik_signature_client::majik_key_client::MnemonicLanguage>",
+      "result": "String"
+    },
+    {
+      "name": "create_account",
+      "parameters": "args: majik_signature_client::majik_key_client::ipc::CreateAccountArgs",
+      "result": "majik_signature_client::majik_key_client::CreatedAccount"
+    },
+    {
+      "name": "import_account_from_mnemonic_backup",
+      "parameters": "args: majik_signature_client::majik_key_client::ipc::BackupAccountArgs",
+      "result": "majik_signature_client::majik_key_client::ImportedAccount"
+    },
+    {
+      "name": "replace_account_from_mnemonic_backup",
+      "parameters": "args: majik_signature_client::majik_key_client::ipc::BackupAccountArgs",
+      "result": "majik_signature_client::majik_key_client::ImportedAccount"
+    },
+    {
+      "name": "export_account_mnemonic_backup",
+      "parameters": "id: String, mnemonic: Zeroizing<String>",
+      "result": "String"
+    },
+    {
+      "name": "add_own_account",
+      "parameters": "account: majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact",
+      "result": "()"
+    },
+    {
+      "name": "remove_own_account",
+      "parameters": "id: String",
+      "result": "bool"
+    },
+    {
+      "name": "update_account_label",
+      "parameters": "id: String, label: String",
+      "result": "()"
+    },
+    {
+      "name": "set_active_account",
+      "parameters": "id: String, bypass_identity: Option<bool>",
+      "result": "bool"
+    },
+    {
+      "name": "unlock_account",
+      "parameters": "id: String, passphrase: Zeroizing<String>",
+      "result": "()"
+    },
+    {
+      "name": "lock_account",
+      "parameters": "id: String",
+      "result": "()"
+    },
+    {
+      "name": "lock_all_accounts",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "verify_passphrase",
+      "parameters": "id: String, passphrase: Zeroizing<String>",
+      "result": "bool"
+    },
+    {
+      "name": "is_passphrase_valid",
+      "parameters": "passphrase: Zeroizing<String>, id: Option<String>",
+      "result": "bool"
+    },
+    {
+      "name": "update_passphrase",
+      "parameters": "args: majik_signature_client::majik_key_client::ipc::UpdatePassphraseArgs",
+      "result": "()"
+    },
+    {
+      "name": "replace_passphrase",
+      "parameters": "args: majik_signature_client::majik_key_client::ipc::ReplacePassphraseArgs",
+      "result": "String"
+    },
+    {
+      "name": "ensure_identity_unlocked",
+      "parameters": "id: String",
+      "result": "()"
+    },
+    {
+      "name": "has_signing_capability",
+      "parameters": "id: Option<String>",
+      "result": "bool"
+    },
+    {
+      "name": "reset_data",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "state_get",
+      "parameters": "key: String",
+      "result": "Option<String>"
+    },
+    {
+      "name": "state_set",
+      "parameters": "key: String, value: String",
+      "result": "()"
+    },
+    {
+      "name": "state_remove",
+      "parameters": "key: String",
+      "result": "bool"
+    },
+    {
+      "name": "state_list",
+      "parameters": "",
+      "result": "Vec<majik_signature_client::majik_key_client::ipc::StateEntryDto>"
+    },
+    {
+      "name": "keystore_export",
+      "parameters": "",
+      "result": "Vec<majik_signature_client::majik_key_client::MajikKeyJson>"
+    },
+    {
+      "name": "keystore_restore",
+      "parameters": "keys: Vec<majik_signature_client::majik_key_client::MajikKeyJson>",
+      "result": "majik_signature_client::majik_key_client::HydrateReport"
+    },
+    {
+      "name": "migrate_legacy_identities",
+      "parameters": "identities: Vec<majik_signature_client::majik_key_client::SerializedIdentity>",
+      "result": "majik_signature_client::majik_key_client::MigrationSummary"
+    },
+    {
+      "name": "begin_signing_session",
+      "parameters": "account_id: Option<String>",
+      "result": "()"
+    },
+    {
+      "name": "end_signing_session",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "force_end_signing_session",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "is_signing_session_active",
+      "parameters": "",
+      "result": "bool"
+    },
+    {
+      "name": "get_user_app_preferences",
+      "parameters": "",
+      "result": "majik_signature_client::UserAppPreferences"
+    },
+    {
+      "name": "set_user_app_preferences",
+      "parameters": "preferences: majik_signature_client::UserAppPreferences",
+      "result": "()"
+    },
+    {
+      "name": "reset_user_app_preferences",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "list_history_logs",
+      "parameters": "",
+      "result": "Vec<majik_signature_client::logs::HistoryLog>"
+    },
+    {
+      "name": "list_activity_logs",
+      "parameters": "",
+      "result": "Vec<majik_signature_client::logs::UserActivityLog>"
+    },
+    {
+      "name": "clear_history_logs",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "clear_activity_logs",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "restart_logs",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "hydrate_logs",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "update_own_account_meta",
+      "parameters": "id: String, meta: majik_signature_client::majik_contact_manager::majik_contact::MajikContactMeta",
+      "result": "()"
+    },
+    {
+      "name": "resolve_signer_label",
+      "parameters": "signer_id: String",
+      "result": "String"
+    },
+    {
+      "name": "list_contacts",
+      "parameters": "sorted_by_label: Option<bool>, majikah_only: Option<bool>",
+      "result": "Vec<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact>"
+    },
+    {
+      "name": "get_contact",
+      "parameters": "id: String",
+      "result": "Option<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact>"
+    },
+    {
+      "name": "get_contact_by_fingerprint",
+      "parameters": "fingerprint: String",
+      "result": "Option<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact>"
+    },
+    {
+      "name": "get_contact_by_address",
+      "parameters": "address: String",
+      "result": "Option<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact>"
+    },
+    {
+      "name": "add_contact",
+      "parameters": "contact: majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact",
+      "result": "()"
+    },
+    {
+      "name": "remove_contact",
+      "parameters": "id: String",
+      "result": "()"
+    },
+    {
+      "name": "update_contact_meta",
+      "parameters": "id: String, meta: majik_signature_client::majik_contact_manager::majik_contact::MajikContactMeta",
+      "result": "()"
+    },
+    {
+      "name": "import_contact_from_json",
+      "parameters": "json: String",
+      "result": "ApiResponseDto"
+    },
+    {
+      "name": "import_contact_from_string",
+      "parameters": "data: String",
+      "result": "ApiResponseDto"
+    },
+    {
+      "name": "export_contact_json",
+      "parameters": "id: String",
+      "result": "Option<String>"
+    },
+    {
+      "name": "export_contact_string",
+      "parameters": "id: String",
+      "result": "Option<String>"
+    },
+    {
+      "name": "clear_directory",
+      "parameters": "",
+      "result": "()"
+    },
+    {
+      "name": "set_majikah_status",
+      "parameters": "id: String, status: bool",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact"
+    },
+    {
+      "name": "block_contact",
+      "parameters": "id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact"
+    },
+    {
+      "name": "unblock_contact",
+      "parameters": "id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact"
+    },
+    {
+      "name": "list_groups",
+      "parameters": "include_system: Option<bool>, sorted_by_name: Option<bool>",
+      "result": "Vec<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup>"
+    },
+    {
+      "name": "get_group",
+      "parameters": "id: String",
+      "result": "Option<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup>"
+    },
+    {
+      "name": "get_contacts_in_group",
+      "parameters": "id: String",
+      "result": "Vec<majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContact>"
+    },
+    {
+      "name": "create_group",
+      "parameters": "args: CreateGroupArgs",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "remove_group",
+      "parameters": "id: String",
+      "result": "ApiResponseDto"
+    },
+    {
+      "name": "update_group_meta",
+      "parameters": "args: UpdateGroupMetaArgs",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "add_contact_to_group",
+      "parameters": "group_id: String, contact_id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "add_contacts_to_group",
+      "parameters": "group_id: String, contact_ids: Vec<String>",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "remove_contact_from_group",
+      "parameters": "group_id: String, contact_id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "move_contact_between_groups",
+      "parameters": "contact_id: String, from_group_id: String, to_group_id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "add_contact_to_favorites",
+      "parameters": "contact_id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "remove_contact_from_favorites",
+      "parameters": "contact_id: String",
+      "result": "majik_signature_client::majik_contact_manager::majik_contact::SerializedMajikContactGroup"
+    },
+    {
+      "name": "create_stamp",
+      "parameters": "args: CreateStampArgs",
+      "result": "majik_signature_client::StampMeta"
+    },
+    {
+      "name": "list_stamps",
+      "parameters": "kind: Option<majik_signature_client::StampAssetKind>",
+      "result": "Vec<majik_signature_client::StampMeta>"
+    },
+    {
+      "name": "list_stamps_for_active_account",
+      "parameters": "",
+      "result": "Vec<majik_signature_client::StampMeta>"
+    },
+    {
+      "name": "hydrate_stamps",
+      "parameters": "",
+      "result": "Vec<majik_signature_client::stamps::SkippedStamp>"
+    },
+    {
+      "name": "lock_stamps",
+      "parameters": "",
+      "result": "usize"
+    },
+    {
+      "name": "get_stamp",
+      "parameters": "id: String",
+      "result": "Option<majik_signature_client::StampMeta>"
+    },
+    {
+      "name": "get_decrypted_stamp",
+      "parameters": "id: String, output: Option<OutputTarget>",
+      "result": "Option<BytesOutput>"
+    },
+    {
+      "name": "decrypt_stamp_content",
+      "parameters": "id: String, account_id: Option<String>, output: Option<OutputTarget>",
+      "result": "BytesOutput"
+    },
+    {
+      "name": "rename_stamp",
+      "parameters": "id: String, name: String",
+      "result": "majik_signature_client::StampMeta"
+    },
+    {
+      "name": "replace_stamp_content",
+      "parameters": "id: String, input: FileInput, mime_type: Option<String>, account_id: Option<String>",
+      "result": "majik_signature_client::StampMeta"
+    },
+    {
+      "name": "remove_stamp",
+      "parameters": "id: String",
+      "result": "()"
+    },
+    {
+      "name": "inspect_stamp",
+      "parameters": "input: FileInput",
+      "result": "StampInspectDto"
+    },
+    {
+      "name": "is_stamped",
+      "parameters": "input: FileInput",
+      "result": "bool"
+    },
+    {
+      "name": "sign_text",
+      "parameters": "text: String, options: Option<SignTextOptionsDto>, ctx: Option<CtxDto>",
+      "result": "SignTextDto"
+    },
+    {
+      "name": "verify_text",
+      "parameters": "args: VerifyTextArgs",
+      "result": "majik_signature_client::VerifyResult"
+    },
+    {
+      "name": "get_signature_metadata",
+      "parameters": "serialized: String",
+      "result": "majik_signature_client::signing::SignatureMetadata"
+    },
+    {
+      "name": "sign_file",
+      "parameters": "args: SignFileArgs",
+      "result": "SignedFileDto"
+    },
+    {
+      "name": "sign_file_detached",
+      "parameters": "args: SignDetachedArgs",
+      "result": "DetachedSignedDto"
+    },
+    {
+      "name": "resign_file",
+      "parameters": "args: ResignArgs",
+      "result": "SignedFileDto"
+    },
+    {
+      "name": "batch_sign_files",
+      "parameters": "args: BatchSignFilesArgs",
+      "result": "Vec<BatchSignOutcomeDto>"
+    },
+    {
+      "name": "begin_sign_file_with_tsa",
+      "parameters": "args: SignFileArgs",
+      "result": "TsaBeginDto"
+    },
+    {
+      "name": "complete_sign_file_with_tsa",
+      "parameters": "token: String, timestamp: majik_signature_client::majik_signature::MajikTimestamp, output: Option<OutputTarget>",
+      "result": "SignedFileDto"
+    },
+    {
+      "name": "begin_sign_file_detached_with_tsa",
+      "parameters": "args: SignDetachedArgs",
+      "result": "TsaBeginDto"
+    },
+    {
+      "name": "complete_sign_file_detached_with_tsa",
+      "parameters": "token: String, timestamp: majik_signature_client::majik_signature::MajikTimestamp, output: Option<OutputTarget>",
+      "result": "DetachedSignedDto"
+    },
+    {
+      "name": "cancel_pending_tsa",
+      "parameters": "token: String",
+      "result": "()"
+    },
+    {
+      "name": "verify_file",
+      "parameters": "args: VerifyFileArgs",
+      "result": "majik_signature_client::VerifyResult"
+    },
+    {
+      "name": "verify_file_all_signatures",
+      "parameters": "args: VerifyFileArgs",
+      "result": "Vec<majik_signature_client::VerifyResult>"
+    },
+    {
+      "name": "verify_file_detached",
+      "parameters": "args: VerifyDetachedArgs",
+      "result": "majik_signature_client::VerifyResult"
+    },
+    {
+      "name": "verify_file_detached_all_signatures",
+      "parameters": "args: VerifyDetachedArgs",
+      "result": "Vec<majik_signature_client::VerifyResult>"
+    },
+    {
+      "name": "verify_file_chain",
+      "parameters": "input: FileInput, now: Option<String>",
+      "result": "ChainDto"
+    },
+    {
+      "name": "verify_file_detached_chain",
+      "parameters": "input: FileInput, envelope: FileInput, now: Option<String>",
+      "result": "ChainDto"
+    },
+    {
+      "name": "verify_file_revisions",
+      "parameters": "final_file: FileInput, revisions: Vec<FileInput>",
+      "result": "RevisionSetDto"
+    },
+    {
+      "name": "verify_file_revisions_detached",
+      "parameters": "final_file: FileInput, revisions: Vec<FileInput>, envelope: FileInput",
+      "result": "RevisionSetDto"
+    },
+    {
+      "name": "extract_signatures",
+      "parameters": "input: FileInput",
+      "result": "Vec<majik_signature_client::majik_signature::MajikSignatureJSON>"
+    },
+    {
+      "name": "strip_signature",
+      "parameters": "input: FileInput, output: Option<OutputTarget>",
+      "result": "BytesOutput"
+    },
+    {
+      "name": "is_file_signed",
+      "parameters": "input: FileInput",
+      "result": "bool"
+    },
+    {
+      "name": "get_allowlist",
+      "parameters": "input: FileInput",
+      "result": "Option<Vec<majik_signature_client::majik_signature::ExpectedSigner>>"
+    },
+    {
+      "name": "can_sign",
+      "parameters": "input: FileInput, account_id: Option<String>",
+      "result": "PermitDto"
+    },
+    {
+      "name": "is_multi_sig",
+      "parameters": "input: FileInput",
+      "result": "bool"
+    },
+    {
+      "name": "get_signatories",
+      "parameters": "input: FileInput, filter: Option<majik_signature_client::majik_signature::SignatoriesFilter>",
+      "result": "Option<majik_signature_client::majik_signature::SignatoriesResult>"
+    },
+    {
+      "name": "get_issuer",
+      "parameters": "input: FileInput",
+      "result": "Option<majik_signature_client::majik_signature::SignatoryInfo>"
+    },
+    {
+      "name": "get_envelope_info",
+      "parameters": "input: FileInput",
+      "result": "Option<majik_signature_client::majik_signature::EnvelopeInfo>"
+    },
+    {
+      "name": "get_file_signature_info",
+      "parameters": "input: FileInput",
+      "result": "FileSignatureInfoDto"
+    },
+    {
+      "name": "seal",
+      "parameters": "input: FileInput, output: Option<OutputTarget>, ctx: Option<CtxDto>",
+      "result": "SealedFileDto"
+    },
+    {
+      "name": "verify_seal",
+      "parameters": "input: FileInput",
+      "result": "majik_signature_client::majik_signature::SealVerificationResult"
+    },
+    {
+      "name": "get_seal_info",
+      "parameters": "input: FileInput",
+      "result": "Option<majik_signature_client::majik_signature::SealInfo>"
+    },
+    {
+      "name": "is_sealed",
+      "parameters": "input: FileInput",
+      "result": "bool"
+    },
+    {
+      "name": "can_anchor",
+      "parameters": "input: FileInput",
+      "result": "PermitDto"
+    },
+    {
+      "name": "register_chain_anchor",
+      "parameters": "input: FileInput, anchor: majik_signature_client::majik_signature::MajikChainAnchor, output: Option<OutputTarget>",
+      "result": "BytesOutput"
+    },
+    {
+      "name": "describe_mjks_map",
+      "parameters": "input: FileInput",
+      "result": "Vec<MapFileInfoDto>"
+    },
+    {
+      "name": "is_mjks_map",
+      "parameters": "input: FileInput",
+      "result": "bool"
+    },
+    {
+      "name": "sign_batch_detached",
+      "parameters": "args: BatchDetachedArgs",
+      "result": "BatchDetachedDto"
+    },
+    {
+      "name": "cosign_mjks_map",
+      "parameters": "args: CosignArgs",
+      "result": "CosignDto"
+    },
+    {
+      "name": "verify_mjks_map",
+      "parameters": "args: VerifyMapArgs",
+      "result": "MapVerifyDto"
+    },
+    {
+      "name": "verify_file_order",
+      "parameters": "args: OrderArgs",
+      "result": "majik_signature_client::majik_signature::SignatureOrderResult"
+    },
+    {
+      "name": "verify_mjks_map_order",
+      "parameters": "map: FileInput, files: Vec<FileInput>, expected: Vec<SignerRefDto>, strict: Option<bool>, source: Option<majik_signature_client::logs::HistorySource>",
+      "result": "Vec<MapOrderDto>"
+    },
+    {
+      "name": "backup_contacts",
+      "parameters": "output: Option<OutputTarget>",
+      "result": "BytesOutput"
+    },
+    {
+      "name": "backup_stamps",
+      "parameters": "output: Option<OutputTarget>",
+      "result": "BytesOutput"
+    },
+    {
+      "name": "backup_app_data",
+      "parameters": "output: Option<OutputTarget>",
+      "result": "BytesOutput"
+    },
+    {
+      "name": "probe_backup_type",
+      "parameters": "input: FileInput",
+      "result": "majik_signature_client::backup::BackupType"
+    },
+    {
+      "name": "read_app_data_backup",
+      "parameters": "input: FileInput",
+      "result": "AppDataSummaryDto"
+    },
+    {
+      "name": "restore_contacts",
+      "parameters": "input: FileInput, overwrite_contacts: Option<bool>, include_groups: Option<bool>",
+      "result": "majik_signature_client::backup::RestoredContacts"
+    },
+    {
+      "name": "restore_stamps",
+      "parameters": "input: FileInput",
+      "result": "usize"
+    },
+    {
+      "name": "restore_app_data",
+      "parameters": "input: FileInput",
+      "result": "majik_signature_client::backup::RestoredAppData"
+    },
+    {
+      "name": "restore_app_data_selective",
+      "parameters": "input: FileInput, options: Option<SelectiveRestoreDto>",
+      "result": "majik_signature_client::backup::RestoredSelective"
+    }
+  ]
+}

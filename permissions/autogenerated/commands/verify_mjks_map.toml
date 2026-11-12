@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-verify-mjks-map"
+description = "Enables the verify_mjks_map command without any pre-configured scope."
+commands.allow = ["verify_mjks_map"]
+
+[[permission]]
+identifier = "deny-verify-mjks-map"
+description = "Denies the verify_mjks_map command without any pre-configured scope."
+commands.deny = ["verify_mjks_map"]

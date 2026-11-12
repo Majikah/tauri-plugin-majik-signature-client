@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-cancel-pending-tsa"
+description = "Enables the cancel_pending_tsa command without any pre-configured scope."
+commands.allow = ["cancel_pending_tsa"]
+
+[[permission]]
+identifier = "deny-cancel-pending-tsa"
+description = "Denies the cancel_pending_tsa command without any pre-configured scope."
+commands.deny = ["cancel_pending_tsa"]

@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-restore-app-data"
+description = "Enables the restore_app_data command without any pre-configured scope."
+commands.allow = ["restore_app_data"]
+
+[[permission]]
+identifier = "deny-restore-app-data"
+description = "Denies the restore_app_data command without any pre-configured scope."
+commands.deny = ["restore_app_data"]

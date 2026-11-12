@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-is-sealed"
+description = "Enables the is_sealed command without any pre-configured scope."
+commands.allow = ["is_sealed"]
+
+[[permission]]
+identifier = "deny-is-sealed"
+description = "Denies the is_sealed command without any pre-configured scope."
+commands.deny = ["is_sealed"]

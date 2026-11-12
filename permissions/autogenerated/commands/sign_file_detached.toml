@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-sign-file-detached"
+description = "Enables the sign_file_detached command without any pre-configured scope."
+commands.allow = ["sign_file_detached"]
+
+[[permission]]
+identifier = "deny-sign-file-detached"
+description = "Denies the sign_file_detached command without any pre-configured scope."
+commands.deny = ["sign_file_detached"]

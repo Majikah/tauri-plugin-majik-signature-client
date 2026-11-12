@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-complete-sign-file-with-tsa"
+description = "Enables the complete_sign_file_with_tsa command without any pre-configured scope."
+commands.allow = ["complete_sign_file_with_tsa"]
+
+[[permission]]
+identifier = "deny-complete-sign-file-with-tsa"
+description = "Denies the complete_sign_file_with_tsa command without any pre-configured scope."
+commands.deny = ["complete_sign_file_with_tsa"]

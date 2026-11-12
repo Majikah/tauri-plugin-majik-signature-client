@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-add-contacts-to-group"
+description = "Enables the add_contacts_to_group command without any pre-configured scope."
+commands.allow = ["add_contacts_to_group"]
+
+[[permission]]
+identifier = "deny-add-contacts-to-group"
+description = "Denies the add_contacts_to_group command without any pre-configured scope."
+commands.deny = ["add_contacts_to_group"]

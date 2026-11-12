@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-clear-activity-logs"
+description = "Enables the clear_activity_logs command without any pre-configured scope."
+commands.allow = ["clear_activity_logs"]
+
+[[permission]]
+identifier = "deny-clear-activity-logs"
+description = "Denies the clear_activity_logs command without any pre-configured scope."
+commands.deny = ["clear_activity_logs"]

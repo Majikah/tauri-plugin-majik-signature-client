@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-lock-stamps"
+description = "Enables the lock_stamps command without any pre-configured scope."
+commands.allow = ["lock_stamps"]
+
+[[permission]]
+identifier = "deny-lock-stamps"
+description = "Denies the lock_stamps command without any pre-configured scope."
+commands.deny = ["lock_stamps"]

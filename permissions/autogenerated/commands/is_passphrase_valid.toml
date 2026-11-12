@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-is-passphrase-valid"
+description = "Enables the is_passphrase_valid command without any pre-configured scope."
+commands.allow = ["is_passphrase_valid"]
+
+[[permission]]
+identifier = "deny-is-passphrase-valid"
+description = "Denies the is_passphrase_valid command without any pre-configured scope."
+commands.deny = ["is_passphrase_valid"]

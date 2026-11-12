@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-move-contact-between-groups"
+description = "Enables the move_contact_between_groups command without any pre-configured scope."
+commands.allow = ["move_contact_between_groups"]
+
+[[permission]]
+identifier = "deny-move-contact-between-groups"
+description = "Denies the move_contact_between_groups command without any pre-configured scope."
+commands.deny = ["move_contact_between_groups"]

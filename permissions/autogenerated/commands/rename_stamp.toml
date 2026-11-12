@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-rename-stamp"
+description = "Enables the rename_stamp command without any pre-configured scope."
+commands.allow = ["rename_stamp"]
+
+[[permission]]
+identifier = "deny-rename-stamp"
+description = "Denies the rename_stamp command without any pre-configured scope."
+commands.deny = ["rename_stamp"]

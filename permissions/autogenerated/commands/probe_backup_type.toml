@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-probe-backup-type"
+description = "Enables the probe_backup_type command without any pre-configured scope."
+commands.allow = ["probe_backup_type"]
+
+[[permission]]
+identifier = "deny-probe-backup-type"
+description = "Denies the probe_backup_type command without any pre-configured scope."
+commands.deny = ["probe_backup_type"]

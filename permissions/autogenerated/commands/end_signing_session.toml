@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-end-signing-session"
+description = "Enables the end_signing_session command without any pre-configured scope."
+commands.allow = ["end_signing_session"]
+
+[[permission]]
+identifier = "deny-end-signing-session"
+description = "Denies the end_signing_session command without any pre-configured scope."
+commands.deny = ["end_signing_session"]

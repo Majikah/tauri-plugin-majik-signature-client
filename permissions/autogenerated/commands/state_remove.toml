@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-state-remove"
+description = "Enables the state_remove command without any pre-configured scope."
+commands.allow = ["state_remove"]
+
+[[permission]]
+identifier = "deny-state-remove"
+description = "Denies the state_remove command without any pre-configured scope."
+commands.deny = ["state_remove"]

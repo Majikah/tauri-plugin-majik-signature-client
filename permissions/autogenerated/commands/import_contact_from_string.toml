@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-import-contact-from-string"
+description = "Enables the import_contact_from_string command without any pre-configured scope."
+commands.allow = ["import_contact_from_string"]
+
+[[permission]]
+identifier = "deny-import-contact-from-string"
+description = "Denies the import_contact_from_string command without any pre-configured scope."
+commands.deny = ["import_contact_from_string"]

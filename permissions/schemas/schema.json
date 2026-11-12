@@ -1,0 +1,1950 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PermissionFile",
+  "description": "Permission file that can define a default permission, a set of permissions or a list of inlined permissions.",
+  "type": "object",
+  "properties": {
+    "default": {
+      "description": "The default permission set for the plugin",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/DefaultPermission"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "set": {
+      "description": "A list of permissions sets defined",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PermissionSet"
+      }
+    },
+    "permission": {
+      "description": "A list of inlined permissions",
+      "default": [],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Permission"
+      }
+    }
+  },
+  "definitions": {
+    "DefaultPermission": {
+      "description": "The default permission set of the plugin.\n\nWorks similarly to a permission with the \"default\" identifier.",
+      "type": "object",
+      "required": [
+        "permissions"
+      ],
+      "properties": {
+        "version": {
+          "description": "The version of the permission.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 1.0
+        },
+        "description": {
+          "description": "Human-readable description of what the permission does. Tauri convention is to use `<h4>` headings in markdown content for Tauri documentation generation purposes.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "permissions": {
+          "description": "All permissions this set contains.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PermissionSet": {
+      "description": "A set of direct permissions grouped together under a new name.",
+      "type": "object",
+      "required": [
+        "description",
+        "identifier",
+        "permissions"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "A unique identifier for the permission.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Human-readable description of what the permission does.",
+          "type": "string"
+        },
+        "permissions": {
+          "description": "All permissions this set contains.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PermissionKind"
+          }
+        }
+      }
+    },
+    "Permission": {
+      "description": "Descriptions of explicit privileges of commands.\n\nIt can enable commands to be accessible in the frontend of the application.\n\nIf the scope is defined it can be used to fine grain control the access of individual or multiple commands.",
+      "type": "object",
+      "required": [
+        "identifier"
+      ],
+      "properties": {
+        "version": {
+          "description": "The version of the permission.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 1.0
+        },
+        "identifier": {
+          "description": "A unique identifier for the permission.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Human-readable description of what the permission does. Tauri internal convention is to use `<h4>` headings in markdown content for Tauri documentation generation purposes.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commands": {
+          "description": "Allowed or denied commands when using this permission.",
+          "default": {
+            "allow": [],
+            "deny": []
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Commands"
+            }
+          ]
+        },
+        "scope": {
+          "description": "Allowed or denied scoped when using this permission.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Scopes"
+            }
+          ]
+        },
+        "platforms": {
+          "description": "Target platforms this permission applies. By default all platforms are affected by this permission.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Target"
+          }
+        }
+      }
+    },
+    "Commands": {
+      "description": "Allowed and denied commands inside a permission.\n\nIf two commands clash inside of `allow` and `deny`, it should be denied by default.",
+      "type": "object",
+      "properties": {
+        "allow": {
+          "description": "Allowed command.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deny": {
+          "description": "Denied command, which takes priority.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Scopes": {
+      "description": "An argument for fine grained behavior control of Tauri commands.\n\nIt can be of any serde serializable type and is used to allow or prevent certain actions inside a Tauri command. The configured scope is passed to the command and will be enforced by the command implementation.\n\n## Example\n\n```json { \"allow\": [{ \"path\": \"$HOME/**\" }], \"deny\": [{ \"path\": \"$HOME/secret.txt\" }] } ```",
+      "type": "object",
+      "properties": {
+        "allow": {
+          "description": "Data that defines what is allowed by the scope.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Value"
+          }
+        },
+        "deny": {
+          "description": "Data that defines what is denied by the scope. This should be prioritized by validation logic.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Value"
+          }
+        }
+      }
+    },
+    "Value": {
+      "description": "All supported ACL values.",
+      "anyOf": [
+        {
+          "description": "Represents a null JSON value.",
+          "type": "null"
+        },
+        {
+          "description": "Represents a [`bool`].",
+          "type": "boolean"
+        },
+        {
+          "description": "Represents a valid ACL [`Number`].",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Number"
+            }
+          ]
+        },
+        {
+          "description": "Represents a [`String`].",
+          "type": "string"
+        },
+        {
+          "description": "Represents a list of other [`Value`]s.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Value"
+          }
+        },
+        {
+          "description": "Represents a map of [`String`] keys to [`Value`]s.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Value"
+          }
+        }
+      ]
+    },
+    "Number": {
+      "description": "A valid ACL number.",
+      "anyOf": [
+        {
+          "description": "Represents an [`i64`].",
+          "type": "integer",
+          "format": "int64"
+        },
+        {
+          "description": "Represents a [`f64`].",
+          "type": "number",
+          "format": "double"
+        }
+      ]
+    },
+    "Target": {
+      "description": "Platform target.",
+      "oneOf": [
+        {
+          "description": "MacOS.",
+          "type": "string",
+          "enum": [
+            "macOS"
+          ]
+        },
+        {
+          "description": "Windows.",
+          "type": "string",
+          "enum": [
+            "windows"
+          ]
+        },
+        {
+          "description": "Linux.",
+          "type": "string",
+          "enum": [
+            "linux"
+          ]
+        },
+        {
+          "description": "Android.",
+          "type": "string",
+          "enum": [
+            "android"
+          ]
+        },
+        {
+          "description": "iOS.",
+          "type": "string",
+          "enum": [
+            "iOS"
+          ]
+        }
+      ]
+    },
+    "PermissionKind": {
+      "type": "string",
+      "oneOf": [
+        {
+          "description": "Enables the add_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-contact",
+          "markdownDescription": "Enables the add_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-contact",
+          "markdownDescription": "Denies the add_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the add_contact_to_favorites command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-contact-to-favorites",
+          "markdownDescription": "Enables the add_contact_to_favorites command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_contact_to_favorites command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-contact-to-favorites",
+          "markdownDescription": "Denies the add_contact_to_favorites command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the add_contact_to_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-contact-to-group",
+          "markdownDescription": "Enables the add_contact_to_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_contact_to_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-contact-to-group",
+          "markdownDescription": "Denies the add_contact_to_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the add_contacts_to_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-contacts-to-group",
+          "markdownDescription": "Enables the add_contacts_to_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_contacts_to_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-contacts-to-group",
+          "markdownDescription": "Denies the add_contacts_to_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the add_own_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-own-account",
+          "markdownDescription": "Enables the add_own_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_own_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-own-account",
+          "markdownDescription": "Denies the add_own_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the backup_app_data command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-backup-app-data",
+          "markdownDescription": "Enables the backup_app_data command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the backup_app_data command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-backup-app-data",
+          "markdownDescription": "Denies the backup_app_data command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the backup_contacts command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-backup-contacts",
+          "markdownDescription": "Enables the backup_contacts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the backup_contacts command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-backup-contacts",
+          "markdownDescription": "Denies the backup_contacts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the backup_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-backup-stamps",
+          "markdownDescription": "Enables the backup_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the backup_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-backup-stamps",
+          "markdownDescription": "Denies the backup_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the batch_sign_files command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-batch-sign-files",
+          "markdownDescription": "Enables the batch_sign_files command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the batch_sign_files command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-batch-sign-files",
+          "markdownDescription": "Denies the batch_sign_files command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the begin_sign_file_detached_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-begin-sign-file-detached-with-tsa",
+          "markdownDescription": "Enables the begin_sign_file_detached_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the begin_sign_file_detached_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-begin-sign-file-detached-with-tsa",
+          "markdownDescription": "Denies the begin_sign_file_detached_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the begin_sign_file_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-begin-sign-file-with-tsa",
+          "markdownDescription": "Enables the begin_sign_file_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the begin_sign_file_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-begin-sign-file-with-tsa",
+          "markdownDescription": "Denies the begin_sign_file_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the begin_signing_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-begin-signing-session",
+          "markdownDescription": "Enables the begin_signing_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the begin_signing_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-begin-signing-session",
+          "markdownDescription": "Denies the begin_signing_session command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the block_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-block-contact",
+          "markdownDescription": "Enables the block_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the block_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-block-contact",
+          "markdownDescription": "Denies the block_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the can_anchor command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-can-anchor",
+          "markdownDescription": "Enables the can_anchor command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the can_anchor command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-can-anchor",
+          "markdownDescription": "Denies the can_anchor command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the can_sign command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-can-sign",
+          "markdownDescription": "Enables the can_sign command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the can_sign command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-can-sign",
+          "markdownDescription": "Denies the can_sign command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the cancel_pending_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-cancel-pending-tsa",
+          "markdownDescription": "Enables the cancel_pending_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the cancel_pending_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-cancel-pending-tsa",
+          "markdownDescription": "Denies the cancel_pending_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the clear_activity_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-clear-activity-logs",
+          "markdownDescription": "Enables the clear_activity_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the clear_activity_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-clear-activity-logs",
+          "markdownDescription": "Denies the clear_activity_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the clear_directory command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-clear-directory",
+          "markdownDescription": "Enables the clear_directory command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the clear_directory command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-clear-directory",
+          "markdownDescription": "Denies the clear_directory command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the clear_history_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-clear-history-logs",
+          "markdownDescription": "Enables the clear_history_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the clear_history_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-clear-history-logs",
+          "markdownDescription": "Denies the clear_history_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the complete_sign_file_detached_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-complete-sign-file-detached-with-tsa",
+          "markdownDescription": "Enables the complete_sign_file_detached_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the complete_sign_file_detached_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-complete-sign-file-detached-with-tsa",
+          "markdownDescription": "Denies the complete_sign_file_detached_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the complete_sign_file_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-complete-sign-file-with-tsa",
+          "markdownDescription": "Enables the complete_sign_file_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the complete_sign_file_with_tsa command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-complete-sign-file-with-tsa",
+          "markdownDescription": "Denies the complete_sign_file_with_tsa command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the cosign_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-cosign-mjks-map",
+          "markdownDescription": "Enables the cosign_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the cosign_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-cosign-mjks-map",
+          "markdownDescription": "Denies the cosign_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the create_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-create-account",
+          "markdownDescription": "Enables the create_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the create_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-create-account",
+          "markdownDescription": "Denies the create_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the create_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-create-group",
+          "markdownDescription": "Enables the create_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the create_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-create-group",
+          "markdownDescription": "Denies the create_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the create_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-create-stamp",
+          "markdownDescription": "Enables the create_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the create_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-create-stamp",
+          "markdownDescription": "Denies the create_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the decrypt_stamp_content command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-decrypt-stamp-content",
+          "markdownDescription": "Enables the decrypt_stamp_content command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the decrypt_stamp_content command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-decrypt-stamp-content",
+          "markdownDescription": "Denies the decrypt_stamp_content command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the describe_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-describe-mjks-map",
+          "markdownDescription": "Enables the describe_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the describe_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-describe-mjks-map",
+          "markdownDescription": "Denies the describe_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the end_signing_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-end-signing-session",
+          "markdownDescription": "Enables the end_signing_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the end_signing_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-end-signing-session",
+          "markdownDescription": "Denies the end_signing_session command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the ensure_identity_unlocked command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-ensure-identity-unlocked",
+          "markdownDescription": "Enables the ensure_identity_unlocked command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the ensure_identity_unlocked command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-ensure-identity-unlocked",
+          "markdownDescription": "Denies the ensure_identity_unlocked command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the export_account_mnemonic_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-export-account-mnemonic-backup",
+          "markdownDescription": "Enables the export_account_mnemonic_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the export_account_mnemonic_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-export-account-mnemonic-backup",
+          "markdownDescription": "Denies the export_account_mnemonic_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the export_contact_json command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-export-contact-json",
+          "markdownDescription": "Enables the export_contact_json command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the export_contact_json command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-export-contact-json",
+          "markdownDescription": "Denies the export_contact_json command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the export_contact_string command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-export-contact-string",
+          "markdownDescription": "Enables the export_contact_string command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the export_contact_string command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-export-contact-string",
+          "markdownDescription": "Denies the export_contact_string command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the extract_signatures command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-extract-signatures",
+          "markdownDescription": "Enables the extract_signatures command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the extract_signatures command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-extract-signatures",
+          "markdownDescription": "Denies the extract_signatures command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the force_end_signing_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-force-end-signing-session",
+          "markdownDescription": "Enables the force_end_signing_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the force_end_signing_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-force-end-signing-session",
+          "markdownDescription": "Denies the force_end_signing_session command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the generate_mnemonic command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-generate-mnemonic",
+          "markdownDescription": "Enables the generate_mnemonic command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the generate_mnemonic command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-generate-mnemonic",
+          "markdownDescription": "Denies the generate_mnemonic command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_allowlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-allowlist",
+          "markdownDescription": "Enables the get_allowlist command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_allowlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-allowlist",
+          "markdownDescription": "Denies the get_allowlist command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-contact",
+          "markdownDescription": "Enables the get_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-contact",
+          "markdownDescription": "Denies the get_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_contact_by_address command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-contact-by-address",
+          "markdownDescription": "Enables the get_contact_by_address command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_contact_by_address command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-contact-by-address",
+          "markdownDescription": "Denies the get_contact_by_address command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_contact_by_fingerprint command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-contact-by-fingerprint",
+          "markdownDescription": "Enables the get_contact_by_fingerprint command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_contact_by_fingerprint command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-contact-by-fingerprint",
+          "markdownDescription": "Denies the get_contact_by_fingerprint command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_contacts_in_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-contacts-in-group",
+          "markdownDescription": "Enables the get_contacts_in_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_contacts_in_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-contacts-in-group",
+          "markdownDescription": "Denies the get_contacts_in_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_decrypted_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-decrypted-stamp",
+          "markdownDescription": "Enables the get_decrypted_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_decrypted_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-decrypted-stamp",
+          "markdownDescription": "Denies the get_decrypted_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_envelope_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-envelope-info",
+          "markdownDescription": "Enables the get_envelope_info command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_envelope_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-envelope-info",
+          "markdownDescription": "Denies the get_envelope_info command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_file_signature_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-file-signature-info",
+          "markdownDescription": "Enables the get_file_signature_info command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_file_signature_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-file-signature-info",
+          "markdownDescription": "Denies the get_file_signature_info command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-group",
+          "markdownDescription": "Enables the get_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-group",
+          "markdownDescription": "Denies the get_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_issuer command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-issuer",
+          "markdownDescription": "Enables the get_issuer command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_issuer command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-issuer",
+          "markdownDescription": "Denies the get_issuer command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_seal_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-seal-info",
+          "markdownDescription": "Enables the get_seal_info command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_seal_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-seal-info",
+          "markdownDescription": "Denies the get_seal_info command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_signatories command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-signatories",
+          "markdownDescription": "Enables the get_signatories command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_signatories command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-signatories",
+          "markdownDescription": "Denies the get_signatories command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_signature_metadata command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-signature-metadata",
+          "markdownDescription": "Enables the get_signature_metadata command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_signature_metadata command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-signature-metadata",
+          "markdownDescription": "Denies the get_signature_metadata command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_snapshot command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-snapshot",
+          "markdownDescription": "Enables the get_snapshot command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_snapshot command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-snapshot",
+          "markdownDescription": "Denies the get_snapshot command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-stamp",
+          "markdownDescription": "Enables the get_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-stamp",
+          "markdownDescription": "Denies the get_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_user_app_preferences command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-user-app-preferences",
+          "markdownDescription": "Enables the get_user_app_preferences command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_user_app_preferences command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-user-app-preferences",
+          "markdownDescription": "Denies the get_user_app_preferences command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the has_signing_capability command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-has-signing-capability",
+          "markdownDescription": "Enables the has_signing_capability command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the has_signing_capability command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-has-signing-capability",
+          "markdownDescription": "Denies the has_signing_capability command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the hydrate command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-hydrate",
+          "markdownDescription": "Enables the hydrate command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the hydrate command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-hydrate",
+          "markdownDescription": "Denies the hydrate command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the hydrate_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-hydrate-logs",
+          "markdownDescription": "Enables the hydrate_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the hydrate_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-hydrate-logs",
+          "markdownDescription": "Denies the hydrate_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the hydrate_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-hydrate-stamps",
+          "markdownDescription": "Enables the hydrate_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the hydrate_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-hydrate-stamps",
+          "markdownDescription": "Denies the hydrate_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the import_account_from_mnemonic_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-import-account-from-mnemonic-backup",
+          "markdownDescription": "Enables the import_account_from_mnemonic_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the import_account_from_mnemonic_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-import-account-from-mnemonic-backup",
+          "markdownDescription": "Denies the import_account_from_mnemonic_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the import_contact_from_json command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-import-contact-from-json",
+          "markdownDescription": "Enables the import_contact_from_json command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the import_contact_from_json command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-import-contact-from-json",
+          "markdownDescription": "Denies the import_contact_from_json command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the import_contact_from_string command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-import-contact-from-string",
+          "markdownDescription": "Enables the import_contact_from_string command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the import_contact_from_string command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-import-contact-from-string",
+          "markdownDescription": "Denies the import_contact_from_string command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the inspect_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-inspect-stamp",
+          "markdownDescription": "Enables the inspect_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the inspect_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-inspect-stamp",
+          "markdownDescription": "Denies the inspect_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_file_signed command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-file-signed",
+          "markdownDescription": "Enables the is_file_signed command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_file_signed command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-file-signed",
+          "markdownDescription": "Denies the is_file_signed command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-mjks-map",
+          "markdownDescription": "Enables the is_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-mjks-map",
+          "markdownDescription": "Denies the is_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_multi_sig command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-multi-sig",
+          "markdownDescription": "Enables the is_multi_sig command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_multi_sig command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-multi-sig",
+          "markdownDescription": "Denies the is_multi_sig command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_passphrase_valid command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-passphrase-valid",
+          "markdownDescription": "Enables the is_passphrase_valid command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_passphrase_valid command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-passphrase-valid",
+          "markdownDescription": "Denies the is_passphrase_valid command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_sealed command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-sealed",
+          "markdownDescription": "Enables the is_sealed command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_sealed command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-sealed",
+          "markdownDescription": "Denies the is_sealed command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_signing_session_active command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-signing-session-active",
+          "markdownDescription": "Enables the is_signing_session_active command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_signing_session_active command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-signing-session-active",
+          "markdownDescription": "Denies the is_signing_session_active command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the is_stamped command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-is-stamped",
+          "markdownDescription": "Enables the is_stamped command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the is_stamped command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-is-stamped",
+          "markdownDescription": "Denies the is_stamped command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the keystore_export command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-keystore-export",
+          "markdownDescription": "Enables the keystore_export command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the keystore_export command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-keystore-export",
+          "markdownDescription": "Denies the keystore_export command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the keystore_restore command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-keystore-restore",
+          "markdownDescription": "Enables the keystore_restore command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the keystore_restore command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-keystore-restore",
+          "markdownDescription": "Denies the keystore_restore command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_activity_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-activity-logs",
+          "markdownDescription": "Enables the list_activity_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_activity_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-activity-logs",
+          "markdownDescription": "Denies the list_activity_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_contacts command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-contacts",
+          "markdownDescription": "Enables the list_contacts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_contacts command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-contacts",
+          "markdownDescription": "Denies the list_contacts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_groups command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-groups",
+          "markdownDescription": "Enables the list_groups command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_groups command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-groups",
+          "markdownDescription": "Denies the list_groups command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_history_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-history-logs",
+          "markdownDescription": "Enables the list_history_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_history_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-history-logs",
+          "markdownDescription": "Denies the list_history_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-stamps",
+          "markdownDescription": "Enables the list_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-stamps",
+          "markdownDescription": "Denies the list_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_stamps_for_active_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-stamps-for-active-account",
+          "markdownDescription": "Enables the list_stamps_for_active_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_stamps_for_active_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-stamps-for-active-account",
+          "markdownDescription": "Denies the list_stamps_for_active_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the lock_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-lock-account",
+          "markdownDescription": "Enables the lock_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the lock_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-lock-account",
+          "markdownDescription": "Denies the lock_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the lock_all_accounts command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-lock-all-accounts",
+          "markdownDescription": "Enables the lock_all_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the lock_all_accounts command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-lock-all-accounts",
+          "markdownDescription": "Denies the lock_all_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the lock_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-lock-stamps",
+          "markdownDescription": "Enables the lock_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the lock_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-lock-stamps",
+          "markdownDescription": "Denies the lock_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the migrate_legacy_identities command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-migrate-legacy-identities",
+          "markdownDescription": "Enables the migrate_legacy_identities command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the migrate_legacy_identities command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-migrate-legacy-identities",
+          "markdownDescription": "Denies the migrate_legacy_identities command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the move_contact_between_groups command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-move-contact-between-groups",
+          "markdownDescription": "Enables the move_contact_between_groups command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the move_contact_between_groups command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-move-contact-between-groups",
+          "markdownDescription": "Denies the move_contact_between_groups command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the open_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-open-session",
+          "markdownDescription": "Enables the open_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the open_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-open-session",
+          "markdownDescription": "Denies the open_session command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the probe_backup_type command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-probe-backup-type",
+          "markdownDescription": "Enables the probe_backup_type command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the probe_backup_type command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-probe-backup-type",
+          "markdownDescription": "Denies the probe_backup_type command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the read_app_data_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-read-app-data-backup",
+          "markdownDescription": "Enables the read_app_data_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the read_app_data_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-read-app-data-backup",
+          "markdownDescription": "Denies the read_app_data_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the register_chain_anchor command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-register-chain-anchor",
+          "markdownDescription": "Enables the register_chain_anchor command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the register_chain_anchor command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-register-chain-anchor",
+          "markdownDescription": "Denies the register_chain_anchor command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-contact",
+          "markdownDescription": "Enables the remove_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-contact",
+          "markdownDescription": "Denies the remove_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_contact_from_favorites command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-contact-from-favorites",
+          "markdownDescription": "Enables the remove_contact_from_favorites command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_contact_from_favorites command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-contact-from-favorites",
+          "markdownDescription": "Denies the remove_contact_from_favorites command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_contact_from_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-contact-from-group",
+          "markdownDescription": "Enables the remove_contact_from_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_contact_from_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-contact-from-group",
+          "markdownDescription": "Denies the remove_contact_from_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-group",
+          "markdownDescription": "Enables the remove_group command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_group command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-group",
+          "markdownDescription": "Denies the remove_group command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_own_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-own-account",
+          "markdownDescription": "Enables the remove_own_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_own_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-own-account",
+          "markdownDescription": "Denies the remove_own_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-stamp",
+          "markdownDescription": "Enables the remove_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-stamp",
+          "markdownDescription": "Denies the remove_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the rename_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-rename-stamp",
+          "markdownDescription": "Enables the rename_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the rename_stamp command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-rename-stamp",
+          "markdownDescription": "Denies the rename_stamp command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the replace_account_from_mnemonic_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-replace-account-from-mnemonic-backup",
+          "markdownDescription": "Enables the replace_account_from_mnemonic_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the replace_account_from_mnemonic_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-replace-account-from-mnemonic-backup",
+          "markdownDescription": "Denies the replace_account_from_mnemonic_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the replace_passphrase command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-replace-passphrase",
+          "markdownDescription": "Enables the replace_passphrase command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the replace_passphrase command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-replace-passphrase",
+          "markdownDescription": "Denies the replace_passphrase command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the replace_stamp_content command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-replace-stamp-content",
+          "markdownDescription": "Enables the replace_stamp_content command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the replace_stamp_content command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-replace-stamp-content",
+          "markdownDescription": "Denies the replace_stamp_content command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the reset_data command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-reset-data",
+          "markdownDescription": "Enables the reset_data command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the reset_data command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-reset-data",
+          "markdownDescription": "Denies the reset_data command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the reset_user_app_preferences command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-reset-user-app-preferences",
+          "markdownDescription": "Enables the reset_user_app_preferences command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the reset_user_app_preferences command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-reset-user-app-preferences",
+          "markdownDescription": "Denies the reset_user_app_preferences command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the resign_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-resign-file",
+          "markdownDescription": "Enables the resign_file command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the resign_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-resign-file",
+          "markdownDescription": "Denies the resign_file command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the resolve_signer_label command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-resolve-signer-label",
+          "markdownDescription": "Enables the resolve_signer_label command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the resolve_signer_label command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-resolve-signer-label",
+          "markdownDescription": "Denies the resolve_signer_label command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the restart_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-restart-logs",
+          "markdownDescription": "Enables the restart_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the restart_logs command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-restart-logs",
+          "markdownDescription": "Denies the restart_logs command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the restore_app_data command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-restore-app-data",
+          "markdownDescription": "Enables the restore_app_data command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the restore_app_data command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-restore-app-data",
+          "markdownDescription": "Denies the restore_app_data command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the restore_app_data_selective command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-restore-app-data-selective",
+          "markdownDescription": "Enables the restore_app_data_selective command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the restore_app_data_selective command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-restore-app-data-selective",
+          "markdownDescription": "Denies the restore_app_data_selective command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the restore_contacts command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-restore-contacts",
+          "markdownDescription": "Enables the restore_contacts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the restore_contacts command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-restore-contacts",
+          "markdownDescription": "Denies the restore_contacts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the restore_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-restore-stamps",
+          "markdownDescription": "Enables the restore_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the restore_stamps command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-restore-stamps",
+          "markdownDescription": "Denies the restore_stamps command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the seal command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-seal",
+          "markdownDescription": "Enables the seal command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the seal command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-seal",
+          "markdownDescription": "Denies the seal command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_active_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-active-account",
+          "markdownDescription": "Enables the set_active_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_active_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-active-account",
+          "markdownDescription": "Denies the set_active_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_majikah_status command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-majikah-status",
+          "markdownDescription": "Enables the set_majikah_status command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_majikah_status command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-majikah-status",
+          "markdownDescription": "Denies the set_majikah_status command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_user_app_preferences command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-user-app-preferences",
+          "markdownDescription": "Enables the set_user_app_preferences command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_user_app_preferences command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-user-app-preferences",
+          "markdownDescription": "Denies the set_user_app_preferences command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the sign_batch_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-sign-batch-detached",
+          "markdownDescription": "Enables the sign_batch_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the sign_batch_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-sign-batch-detached",
+          "markdownDescription": "Denies the sign_batch_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the sign_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-sign-file",
+          "markdownDescription": "Enables the sign_file command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the sign_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-sign-file",
+          "markdownDescription": "Denies the sign_file command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the sign_file_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-sign-file-detached",
+          "markdownDescription": "Enables the sign_file_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the sign_file_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-sign-file-detached",
+          "markdownDescription": "Denies the sign_file_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the sign_text command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-sign-text",
+          "markdownDescription": "Enables the sign_text command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the sign_text command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-sign-text",
+          "markdownDescription": "Denies the sign_text command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the snapshot command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-snapshot",
+          "markdownDescription": "Enables the snapshot command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the snapshot command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-snapshot",
+          "markdownDescription": "Denies the snapshot command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the state_get command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-state-get",
+          "markdownDescription": "Enables the state_get command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the state_get command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-state-get",
+          "markdownDescription": "Denies the state_get command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the state_list command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-state-list",
+          "markdownDescription": "Enables the state_list command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the state_list command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-state-list",
+          "markdownDescription": "Denies the state_list command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the state_remove command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-state-remove",
+          "markdownDescription": "Enables the state_remove command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the state_remove command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-state-remove",
+          "markdownDescription": "Denies the state_remove command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the state_set command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-state-set",
+          "markdownDescription": "Enables the state_set command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the state_set command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-state-set",
+          "markdownDescription": "Denies the state_set command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the strip_signature command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-strip-signature",
+          "markdownDescription": "Enables the strip_signature command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the strip_signature command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-strip-signature",
+          "markdownDescription": "Denies the strip_signature command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the unblock_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-unblock-contact",
+          "markdownDescription": "Enables the unblock_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the unblock_contact command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-unblock-contact",
+          "markdownDescription": "Denies the unblock_contact command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the unlock_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-unlock-account",
+          "markdownDescription": "Enables the unlock_account command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the unlock_account command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-unlock-account",
+          "markdownDescription": "Denies the unlock_account command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the update_account_label command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-update-account-label",
+          "markdownDescription": "Enables the update_account_label command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the update_account_label command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-update-account-label",
+          "markdownDescription": "Denies the update_account_label command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the update_contact_meta command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-update-contact-meta",
+          "markdownDescription": "Enables the update_contact_meta command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the update_contact_meta command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-update-contact-meta",
+          "markdownDescription": "Denies the update_contact_meta command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the update_group_meta command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-update-group-meta",
+          "markdownDescription": "Enables the update_group_meta command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the update_group_meta command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-update-group-meta",
+          "markdownDescription": "Denies the update_group_meta command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the update_own_account_meta command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-update-own-account-meta",
+          "markdownDescription": "Enables the update_own_account_meta command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the update_own_account_meta command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-update-own-account-meta",
+          "markdownDescription": "Denies the update_own_account_meta command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the update_passphrase command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-update-passphrase",
+          "markdownDescription": "Enables the update_passphrase command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the update_passphrase command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-update-passphrase",
+          "markdownDescription": "Denies the update_passphrase command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file",
+          "markdownDescription": "Enables the verify_file command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file",
+          "markdownDescription": "Denies the verify_file command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_all_signatures command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-all-signatures",
+          "markdownDescription": "Enables the verify_file_all_signatures command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_all_signatures command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-all-signatures",
+          "markdownDescription": "Denies the verify_file_all_signatures command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_chain command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-chain",
+          "markdownDescription": "Enables the verify_file_chain command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_chain command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-chain",
+          "markdownDescription": "Denies the verify_file_chain command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-detached",
+          "markdownDescription": "Enables the verify_file_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-detached",
+          "markdownDescription": "Denies the verify_file_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_detached_all_signatures command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-detached-all-signatures",
+          "markdownDescription": "Enables the verify_file_detached_all_signatures command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_detached_all_signatures command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-detached-all-signatures",
+          "markdownDescription": "Denies the verify_file_detached_all_signatures command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_detached_chain command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-detached-chain",
+          "markdownDescription": "Enables the verify_file_detached_chain command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_detached_chain command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-detached-chain",
+          "markdownDescription": "Denies the verify_file_detached_chain command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_order command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-order",
+          "markdownDescription": "Enables the verify_file_order command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_order command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-order",
+          "markdownDescription": "Denies the verify_file_order command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_revisions command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-revisions",
+          "markdownDescription": "Enables the verify_file_revisions command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_revisions command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-revisions",
+          "markdownDescription": "Denies the verify_file_revisions command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_file_revisions_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-file-revisions-detached",
+          "markdownDescription": "Enables the verify_file_revisions_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_file_revisions_detached command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-file-revisions-detached",
+          "markdownDescription": "Denies the verify_file_revisions_detached command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-mjks-map",
+          "markdownDescription": "Enables the verify_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_mjks_map command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-mjks-map",
+          "markdownDescription": "Denies the verify_mjks_map command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_mjks_map_order command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-mjks-map-order",
+          "markdownDescription": "Enables the verify_mjks_map_order command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_mjks_map_order command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-mjks-map-order",
+          "markdownDescription": "Denies the verify_mjks_map_order command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_passphrase command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-passphrase",
+          "markdownDescription": "Enables the verify_passphrase command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_passphrase command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-passphrase",
+          "markdownDescription": "Denies the verify_passphrase command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_seal command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-seal",
+          "markdownDescription": "Enables the verify_seal command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_seal command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-seal",
+          "markdownDescription": "Denies the verify_seal command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the verify_text command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-verify-text",
+          "markdownDescription": "Enables the verify_text command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the verify_text command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-verify-text",
+          "markdownDescription": "Denies the verify_text command without any pre-configured scope."
+        },
+        {
+          "description": "Allows every majik-signature-client command.\n#### This default permission set includes:\n\n- `allow-open-session`\n- `allow-get-snapshot`\n- `allow-snapshot`\n- `allow-hydrate`\n- `allow-generate-mnemonic`\n- `allow-create-account`\n- `allow-import-account-from-mnemonic-backup`\n- `allow-replace-account-from-mnemonic-backup`\n- `allow-export-account-mnemonic-backup`\n- `allow-add-own-account`\n- `allow-remove-own-account`\n- `allow-update-account-label`\n- `allow-set-active-account`\n- `allow-unlock-account`\n- `allow-lock-account`\n- `allow-lock-all-accounts`\n- `allow-verify-passphrase`\n- `allow-is-passphrase-valid`\n- `allow-update-passphrase`\n- `allow-replace-passphrase`\n- `allow-ensure-identity-unlocked`\n- `allow-has-signing-capability`\n- `allow-reset-data`\n- `allow-state-get`\n- `allow-state-set`\n- `allow-state-remove`\n- `allow-state-list`\n- `allow-keystore-export`\n- `allow-keystore-restore`\n- `allow-migrate-legacy-identities`\n- `allow-begin-signing-session`\n- `allow-end-signing-session`\n- `allow-force-end-signing-session`\n- `allow-is-signing-session-active`\n- `allow-get-user-app-preferences`\n- `allow-set-user-app-preferences`\n- `allow-reset-user-app-preferences`\n- `allow-list-history-logs`\n- `allow-list-activity-logs`\n- `allow-clear-history-logs`\n- `allow-clear-activity-logs`\n- `allow-restart-logs`\n- `allow-hydrate-logs`\n- `allow-update-own-account-meta`\n- `allow-resolve-signer-label`\n- `allow-list-contacts`\n- `allow-get-contact`\n- `allow-get-contact-by-fingerprint`\n- `allow-get-contact-by-address`\n- `allow-add-contact`\n- `allow-remove-contact`\n- `allow-update-contact-meta`\n- `allow-import-contact-from-json`\n- `allow-import-contact-from-string`\n- `allow-export-contact-json`\n- `allow-export-contact-string`\n- `allow-clear-directory`\n- `allow-set-majikah-status`\n- `allow-block-contact`\n- `allow-unblock-contact`\n- `allow-list-groups`\n- `allow-get-group`\n- `allow-get-contacts-in-group`\n- `allow-create-group`\n- `allow-remove-group`\n- `allow-update-group-meta`\n- `allow-add-contact-to-group`\n- `allow-add-contacts-to-group`\n- `allow-remove-contact-from-group`\n- `allow-move-contact-between-groups`\n- `allow-add-contact-to-favorites`\n- `allow-remove-contact-from-favorites`\n- `allow-create-stamp`\n- `allow-list-stamps`\n- `allow-list-stamps-for-active-account`\n- `allow-hydrate-stamps`\n- `allow-lock-stamps`\n- `allow-get-stamp`\n- `allow-get-decrypted-stamp`\n- `allow-decrypt-stamp-content`\n- `allow-rename-stamp`\n- `allow-replace-stamp-content`\n- `allow-remove-stamp`\n- `allow-inspect-stamp`\n- `allow-is-stamped`\n- `allow-sign-text`\n- `allow-verify-text`\n- `allow-get-signature-metadata`\n- `allow-sign-file`\n- `allow-sign-file-detached`\n- `allow-resign-file`\n- `allow-batch-sign-files`\n- `allow-begin-sign-file-with-tsa`\n- `allow-complete-sign-file-with-tsa`\n- `allow-begin-sign-file-detached-with-tsa`\n- `allow-complete-sign-file-detached-with-tsa`\n- `allow-cancel-pending-tsa`\n- `allow-verify-file`\n- `allow-verify-file-all-signatures`\n- `allow-verify-file-detached`\n- `allow-verify-file-detached-all-signatures`\n- `allow-verify-file-chain`\n- `allow-verify-file-detached-chain`\n- `allow-verify-file-revisions`\n- `allow-verify-file-revisions-detached`\n- `allow-extract-signatures`\n- `allow-strip-signature`\n- `allow-is-file-signed`\n- `allow-get-allowlist`\n- `allow-can-sign`\n- `allow-is-multi-sig`\n- `allow-get-signatories`\n- `allow-get-issuer`\n- `allow-get-envelope-info`\n- `allow-get-file-signature-info`\n- `allow-seal`\n- `allow-verify-seal`\n- `allow-get-seal-info`\n- `allow-is-sealed`\n- `allow-can-anchor`\n- `allow-register-chain-anchor`\n- `allow-describe-mjks-map`\n- `allow-is-mjks-map`\n- `allow-sign-batch-detached`\n- `allow-cosign-mjks-map`\n- `allow-verify-mjks-map`\n- `allow-verify-file-order`\n- `allow-verify-mjks-map-order`\n- `allow-backup-contacts`\n- `allow-backup-stamps`\n- `allow-backup-app-data`\n- `allow-probe-backup-type`\n- `allow-read-app-data-backup`\n- `allow-restore-contacts`\n- `allow-restore-stamps`\n- `allow-restore-app-data`\n- `allow-restore-app-data-selective`",
+          "type": "string",
+          "const": "default",
+          "markdownDescription": "Allows every majik-signature-client command.\n#### This default permission set includes:\n\n- `allow-open-session`\n- `allow-get-snapshot`\n- `allow-snapshot`\n- `allow-hydrate`\n- `allow-generate-mnemonic`\n- `allow-create-account`\n- `allow-import-account-from-mnemonic-backup`\n- `allow-replace-account-from-mnemonic-backup`\n- `allow-export-account-mnemonic-backup`\n- `allow-add-own-account`\n- `allow-remove-own-account`\n- `allow-update-account-label`\n- `allow-set-active-account`\n- `allow-unlock-account`\n- `allow-lock-account`\n- `allow-lock-all-accounts`\n- `allow-verify-passphrase`\n- `allow-is-passphrase-valid`\n- `allow-update-passphrase`\n- `allow-replace-passphrase`\n- `allow-ensure-identity-unlocked`\n- `allow-has-signing-capability`\n- `allow-reset-data`\n- `allow-state-get`\n- `allow-state-set`\n- `allow-state-remove`\n- `allow-state-list`\n- `allow-keystore-export`\n- `allow-keystore-restore`\n- `allow-migrate-legacy-identities`\n- `allow-begin-signing-session`\n- `allow-end-signing-session`\n- `allow-force-end-signing-session`\n- `allow-is-signing-session-active`\n- `allow-get-user-app-preferences`\n- `allow-set-user-app-preferences`\n- `allow-reset-user-app-preferences`\n- `allow-list-history-logs`\n- `allow-list-activity-logs`\n- `allow-clear-history-logs`\n- `allow-clear-activity-logs`\n- `allow-restart-logs`\n- `allow-hydrate-logs`\n- `allow-update-own-account-meta`\n- `allow-resolve-signer-label`\n- `allow-list-contacts`\n- `allow-get-contact`\n- `allow-get-contact-by-fingerprint`\n- `allow-get-contact-by-address`\n- `allow-add-contact`\n- `allow-remove-contact`\n- `allow-update-contact-meta`\n- `allow-import-contact-from-json`\n- `allow-import-contact-from-string`\n- `allow-export-contact-json`\n- `allow-export-contact-string`\n- `allow-clear-directory`\n- `allow-set-majikah-status`\n- `allow-block-contact`\n- `allow-unblock-contact`\n- `allow-list-groups`\n- `allow-get-group`\n- `allow-get-contacts-in-group`\n- `allow-create-group`\n- `allow-remove-group`\n- `allow-update-group-meta`\n- `allow-add-contact-to-group`\n- `allow-add-contacts-to-group`\n- `allow-remove-contact-from-group`\n- `allow-move-contact-between-groups`\n- `allow-add-contact-to-favorites`\n- `allow-remove-contact-from-favorites`\n- `allow-create-stamp`\n- `allow-list-stamps`\n- `allow-list-stamps-for-active-account`\n- `allow-hydrate-stamps`\n- `allow-lock-stamps`\n- `allow-get-stamp`\n- `allow-get-decrypted-stamp`\n- `allow-decrypt-stamp-content`\n- `allow-rename-stamp`\n- `allow-replace-stamp-content`\n- `allow-remove-stamp`\n- `allow-inspect-stamp`\n- `allow-is-stamped`\n- `allow-sign-text`\n- `allow-verify-text`\n- `allow-get-signature-metadata`\n- `allow-sign-file`\n- `allow-sign-file-detached`\n- `allow-resign-file`\n- `allow-batch-sign-files`\n- `allow-begin-sign-file-with-tsa`\n- `allow-complete-sign-file-with-tsa`\n- `allow-begin-sign-file-detached-with-tsa`\n- `allow-complete-sign-file-detached-with-tsa`\n- `allow-cancel-pending-tsa`\n- `allow-verify-file`\n- `allow-verify-file-all-signatures`\n- `allow-verify-file-detached`\n- `allow-verify-file-detached-all-signatures`\n- `allow-verify-file-chain`\n- `allow-verify-file-detached-chain`\n- `allow-verify-file-revisions`\n- `allow-verify-file-revisions-detached`\n- `allow-extract-signatures`\n- `allow-strip-signature`\n- `allow-is-file-signed`\n- `allow-get-allowlist`\n- `allow-can-sign`\n- `allow-is-multi-sig`\n- `allow-get-signatories`\n- `allow-get-issuer`\n- `allow-get-envelope-info`\n- `allow-get-file-signature-info`\n- `allow-seal`\n- `allow-verify-seal`\n- `allow-get-seal-info`\n- `allow-is-sealed`\n- `allow-can-anchor`\n- `allow-register-chain-anchor`\n- `allow-describe-mjks-map`\n- `allow-is-mjks-map`\n- `allow-sign-batch-detached`\n- `allow-cosign-mjks-map`\n- `allow-verify-mjks-map`\n- `allow-verify-file-order`\n- `allow-verify-mjks-map-order`\n- `allow-backup-contacts`\n- `allow-backup-stamps`\n- `allow-backup-app-data`\n- `allow-probe-backup-type`\n- `allow-read-app-data-backup`\n- `allow-restore-contacts`\n- `allow-restore-stamps`\n- `allow-restore-app-data`\n- `allow-restore-app-data-selective`"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-is-stamped"
+description = "Enables the is_stamped command without any pre-configured scope."
+commands.allow = ["is_stamped"]
+
+[[permission]]
+identifier = "deny-is-stamped"
+description = "Denies the is_stamped command without any pre-configured scope."
+commands.deny = ["is_stamped"]

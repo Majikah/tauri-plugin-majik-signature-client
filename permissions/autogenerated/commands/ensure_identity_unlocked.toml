@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-ensure-identity-unlocked"
+description = "Enables the ensure_identity_unlocked command without any pre-configured scope."
+commands.allow = ["ensure_identity_unlocked"]
+
+[[permission]]
+identifier = "deny-ensure-identity-unlocked"
+description = "Denies the ensure_identity_unlocked command without any pre-configured scope."
+commands.deny = ["ensure_identity_unlocked"]

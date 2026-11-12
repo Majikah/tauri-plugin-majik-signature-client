@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-export-contact-json"
+description = "Enables the export_contact_json command without any pre-configured scope."
+commands.allow = ["export_contact_json"]
+
+[[permission]]
+identifier = "deny-export-contact-json"
+description = "Denies the export_contact_json command without any pre-configured scope."
+commands.deny = ["export_contact_json"]

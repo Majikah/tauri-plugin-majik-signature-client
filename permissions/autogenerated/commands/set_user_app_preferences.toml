@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-set-user-app-preferences"
+description = "Enables the set_user_app_preferences command without any pre-configured scope."
+commands.allow = ["set_user_app_preferences"]
+
+[[permission]]
+identifier = "deny-set-user-app-preferences"
+description = "Denies the set_user_app_preferences command without any pre-configured scope."
+commands.deny = ["set_user_app_preferences"]

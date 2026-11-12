@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-begin-signing-session"
+description = "Enables the begin_signing_session command without any pre-configured scope."
+commands.allow = ["begin_signing_session"]
+
+[[permission]]
+identifier = "deny-begin-signing-session"
+description = "Denies the begin_signing_session command without any pre-configured scope."
+commands.deny = ["begin_signing_session"]

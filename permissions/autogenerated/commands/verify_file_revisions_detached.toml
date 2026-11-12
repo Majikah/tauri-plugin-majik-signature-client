@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-verify-file-revisions-detached"
+description = "Enables the verify_file_revisions_detached command without any pre-configured scope."
+commands.allow = ["verify_file_revisions_detached"]
+
+[[permission]]
+identifier = "deny-verify-file-revisions-detached"
+description = "Denies the verify_file_revisions_detached command without any pre-configured scope."
+commands.deny = ["verify_file_revisions_detached"]

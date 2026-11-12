@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-import-account-from-mnemonic-backup"
+description = "Enables the import_account_from_mnemonic_backup command without any pre-configured scope."
+commands.allow = ["import_account_from_mnemonic_backup"]
+
+[[permission]]
+identifier = "deny-import-account-from-mnemonic-backup"
+description = "Denies the import_account_from_mnemonic_backup command without any pre-configured scope."
+commands.deny = ["import_account_from_mnemonic_backup"]
