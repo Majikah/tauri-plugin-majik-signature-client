@@ -20,6 +20,8 @@ include = [
     "gen.py",
     "src/**/*.rs",
     "permissions/**/*.toml",
+    "permissions/**/*.md",
+    "permissions/**/*.json",
     "contract/commands.json",
     "tests/*.py",
 ]
