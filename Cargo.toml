@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-majik-signature-client"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 rust-version = "1.80"
 description = "Tauri v2 plugin exposing Majikah's Rust signature client to webview applications."
@@ -27,7 +27,7 @@ include = [
 ]
 
 [dependencies]
-majik-signature-client = "1.2.0"
+majik-signature-client = "1.2.1"
 tauri = "2"
 rusqlite = { version = "0.40", features = ["bundled"] }
 zeroize = { version = "1", features = ["serde"] }
