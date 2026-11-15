@@ -1643,7 +1643,10 @@ pub async fn restore_app_data_selective(
 
 #[tauri::command]
 #[allow(unused_variables)]
-pub async fn get_solana_signer_address(state: Handle<'_>, account_id: Option<String>) -> Res<String> {
+pub async fn get_solana_signer_address(
+    state: Handle<'_>,
+    account_id: Option<String>,
+) -> Res<String> {
     state
         .run(move |c: &mut SignatureClient| c.get_solana_signer_address(account_id.as_deref()))
         .await
@@ -1651,7 +1654,11 @@ pub async fn get_solana_signer_address(state: Handle<'_>, account_id: Option<Str
 
 #[tauri::command]
 #[allow(unused_variables)]
-pub async fn sign_solana_message(state: Handle<'_>, message: Vec<u8>, account_id: Option<String>) -> Res<Vec<u8>> {
+pub async fn sign_solana_message(
+    state: Handle<'_>,
+    message: Vec<u8>,
+    account_id: Option<String>,
+) -> Res<Vec<u8>> {
     state
         .run(move |c: &mut SignatureClient| c.sign_solana_message(&message, account_id.as_deref()))
         .await
