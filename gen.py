@@ -225,10 +225,6 @@ cmd("restore_app_data_selective", "input: FileInput, options: Option<SelectiveRe
 cmd("get_solana_signer_address", "account_id: Option<String>", "String", "c.get_solana_signer_address(account_id.as_deref())")
 cmd("sign_solana_message", "message: Vec<u8>, account_id: Option<String>", "Vec<u8>", "c.sign_solana_message(&message, account_id.as_deref())")
 
-# -- Solana signer (used by Majik Notary) --
-cmd("get_solana_signer_address", "account_id: Option<String>", "String", "c.get_solana_signer_address(account_id.as_deref())")
-cmd("sign_solana_message", "message: Vec<u8>, account_id: Option<String>", "Vec<u8>", "c.sign_solana_message(&message, account_id.as_deref())")
-
 names = [n for n,_,_,_ in C]
 assert len(names) == len(set(names)), "duplicate command names"
 
