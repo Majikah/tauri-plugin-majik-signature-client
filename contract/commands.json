@@ -1,6 +1,6 @@
 {
   "plugin": "majik-signature-client",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "eventChannel": "majik-signature-client:event",
   "eventTypes": [
     "new-account",
@@ -23,7 +23,7 @@
     "history-log",
     "activity-log"
   ],
-  "commandCount": 137,
+  "commandCount": 139,
   "commands": [
     {
       "name": "open_session",
@@ -709,6 +709,16 @@
       "name": "restore_app_data_selective",
       "parameters": "input: FileInput, options: Option<SelectiveRestoreDto>",
       "result": "majik_signature_client::backup::RestoredSelective"
+    },
+    {
+      "name": "get_solana_signer_address",
+      "parameters": "account_id: Option<String>",
+      "result": "String"
+    },
+    {
+      "name": "sign_solana_message",
+      "parameters": "message: Vec<u8>, account_id: Option<String>",
+      "result": "Vec<u8>"
     }
   ]
 }
