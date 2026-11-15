@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-sign-solana-message"
+description = "Enables the sign_solana_message command without any pre-configured scope."
+commands.allow = ["sign_solana_message"]
+
+[[permission]]
+identifier = "deny-sign-solana-message"
+description = "Denies the sign_solana_message command without any pre-configured scope."
+commands.deny = ["sign_solana_message"]
