@@ -138,6 +138,8 @@ const COMMANDS: &[&str] = &[
     "restore_app_data_selective",
     "get_solana_signer_address",
     "sign_solana_message",
+    "get_solana_signer_address",
+    "sign_solana_message",
 ];
 
 fn main() {
