@@ -221,6 +221,10 @@ cmd("restore_app_data", "input: FileInput", f"{SIG}::backup::RestoredAppData", "
 cmd("restore_app_data_selective", "input: FileInput, options: Option<SelectiveRestoreDto>", f"{SIG}::backup::RestoredSelective",
     "ops::restore_app_data_selective(c, &input, options.unwrap_or(SelectiveRestoreDto { stamps: true, contacts: true, groups: true, preferences: true, overwrite_contacts: true }))")
 
+# -- Solana signer (used by Majik Notary) --
+cmd("get_solana_signer_address", "account_id: Option<String>", "String", "c.get_solana_signer_address(account_id.as_deref())")
+cmd("sign_solana_message", "message: Vec<u8>, account_id: Option<String>", "Vec<u8>", "c.sign_solana_message(&message, account_id.as_deref())")
+
 names = [n for n,_,_,_ in C]
 assert len(names) == len(set(names)), "duplicate command names"
 
@@ -307,7 +311,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
 Path("contract").mkdir(exist_ok=True)
 contract = {
     "plugin": "majik-signature-client",
-    "version": "1.2.0",
+    "version": "1.2.2",
     "eventChannel": "majik-signature-client:event",
     "eventTypes": [
         "new-account",
