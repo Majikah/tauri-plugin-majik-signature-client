@@ -138,4 +138,6 @@ permissions = [
     "allow-restore-stamps",
     "allow-restore-app-data",
     "allow-restore-app-data-selective",
+    "allow-get-solana-signer-address",
+    "allow-sign-solana-message",
 ]

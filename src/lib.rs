@@ -167,6 +167,8 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             commands::restore_stamps,
             commands::restore_app_data,
             commands::restore_app_data_selective,
+            commands::get_solana_signer_address,
+            commands::sign_solana_message,
         ])
         .setup(move |app, _api| {
             let client = SignatureClient::with_sqlite(conn)?;

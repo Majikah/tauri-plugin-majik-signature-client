@@ -33,8 +33,8 @@ def main() -> None:
 
     if contract.get("plugin") != "majik-signature-client":
         fail("unexpected plugin name in contract")
-    if contract.get("version") != "1.2.0":
-        fail("command contract version is not 1.2.0")
+    if contract.get("version") != "1.2.2":
+        fail("command contract version is not 1.2.2")
     if contract.get("eventChannel") != "majik-signature-client:event":
         fail("unexpected event channel")
     if len(names) != contract.get("commandCount"):
