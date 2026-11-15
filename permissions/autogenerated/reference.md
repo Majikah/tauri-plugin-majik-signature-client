@@ -1430,6 +1430,32 @@ Denies the get_snapshot command without any pre-configured scope.
 <tr>
 <td>
 
+`majik-signature-client:allow-get-solana-signer-address`
+
+</td>
+<td>
+
+Enables the get_solana_signer_address command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-get-solana-signer-address`
+
+</td>
+<td>
+
+Denies the get_solana_signer_address command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `majik-signature-client:allow-get-stamp`
 
 </td>
@@ -2990,6 +3016,32 @@ Denies the sign_file_detached command without any pre-configured scope.
 <tr>
 <td>
 
+`majik-signature-client:allow-sign-solana-message`
+
+</td>
+<td>
+
+Enables the sign_solana_message command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-solana-message`
+
+</td>
+<td>
+
+Denies the sign_solana_message command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `majik-signature-client:allow-sign-text`
 
 </td>
@@ -3711,55 +3763,6 @@ Enables the verify_text command without any pre-configured scope.
 <td>
 
 Denies the verify_text command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`majik-signature-client:allow-get-solana-signer-address`
-
-</td>
-<td>
-
-Enables the get_solana_signer_address command without any pre-configured scope.
-
-</td>
-</tr>
-<tr>
-<td>
-
-`majik-signature-client:deny-get-solana-signer-address`
-
-</td>
-<td>
-
-Denies the get_solana_signer_address command without any pre-configured scope.
-
-</td>
-</tr>
-<tr>
-<td>
-
-`majik-signature-client:allow-sign-solana-message`
-
-</td>
-<td>
-
-Enables the sign_solana_message command without any pre-configured scope.
-
-</td>
-</tr>
-<tr>
-<td>
-
-`majik-signature-client:deny-sign-solana-message`
-
-</td>
-<td>
-
-Denies the sign_solana_message command without any pre-configured scope.
 
 </td>
 </tr>
