@@ -90,6 +90,8 @@ const COMMANDS: &[&str] = &[
     "sign_file",
     "sign_file_detached",
     "sign_session_file",
+    "encrypt_signroom_file",
+    "decrypt_signroom_file",
     "resign_file",
     "batch_sign_files",
     "begin_sign_file_with_tsa",

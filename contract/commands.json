@@ -23,7 +23,7 @@
     "history-log",
     "activity-log"
   ],
-  "commandCount": 140,
+  "commandCount": 142,
   "commands": [
     {
       "name": "open_session",
@@ -479,6 +479,16 @@
       "name": "sign_session_file",
       "parameters": "args: SignSessionFileArgs",
       "result": "SessionSignedDto"
+    },
+    {
+      "name": "encrypt_signroom_file",
+      "parameters": "args: EncryptSignRoomFileArgs",
+      "result": "EncryptSignRoomFileDto"
+    },
+    {
+      "name": "decrypt_signroom_file",
+      "parameters": "args: DecryptSignRoomFileArgs",
+      "result": "DecryptSignRoomFileDto"
     },
     {
       "name": "resign_file",

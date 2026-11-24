@@ -95,6 +95,8 @@ Allows every majik-signature-client command.
 - `allow-sign-file`
 - `allow-sign-file-detached`
 - `allow-sign-session-file`
+- `allow-encrypt-signroom-file`
+- `allow-decrypt-signroom-file`
 - `allow-resign-file`
 - `allow-batch-sign-files`
 - `allow-begin-sign-file-with-tsa`

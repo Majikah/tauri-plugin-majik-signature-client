@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-decrypt-signroom-file"
+description = "Enables the decrypt_signroom_file command without any pre-configured scope."
+commands.allow = ["decrypt_signroom_file"]
+
+[[permission]]
+identifier = "deny-decrypt-signroom-file"
+description = "Denies the decrypt_signroom_file command without any pre-configured scope."
+commands.deny = ["decrypt_signroom_file"]

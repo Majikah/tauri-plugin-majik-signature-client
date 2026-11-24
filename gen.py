@@ -150,6 +150,8 @@ cmd("get_signature_metadata", "serialized: String", f"{SIG}::signing::SignatureM
 cmd("sign_file", "args: SignFileArgs", "SignedFileDto", "ops::sign_file(c, args)")
 cmd("sign_file_detached", "args: SignDetachedArgs", "DetachedSignedDto", "ops::sign_file_detached(c, args)")
 cmd("sign_session_file", "args: SignSessionFileArgs", "SessionSignedDto", "ops::sign_session_file(c, args)")
+cmd("encrypt_signroom_file", "args: EncryptSignRoomFileArgs", "EncryptSignRoomFileDto", "ops::encrypt_signroom_file(args)")
+cmd("decrypt_signroom_file", "args: DecryptSignRoomFileArgs", "DecryptSignRoomFileDto", "ops::decrypt_signroom_file(c, args)")
 cmd("resign_file", "args: ResignArgs", "SignedFileDto", "ops::resign_file(c, args)")
 cmd("batch_sign_files", "args: BatchSignFilesArgs", "Vec<BatchSignOutcomeDto>", "ops::batch_sign_files(c, args)")
 
