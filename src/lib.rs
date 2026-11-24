@@ -120,6 +120,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             commands::get_signature_metadata,
             commands::sign_file,
             commands::sign_file_detached,
+            commands::sign_session_file,
             commands::resign_file,
             commands::batch_sign_files,
             commands::begin_sign_file_with_tsa,

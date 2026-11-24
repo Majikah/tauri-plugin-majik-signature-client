@@ -23,7 +23,7 @@
     "history-log",
     "activity-log"
   ],
-  "commandCount": 139,
+  "commandCount": 140,
   "commands": [
     {
       "name": "open_session",
@@ -474,6 +474,11 @@
       "name": "sign_file_detached",
       "parameters": "args: SignDetachedArgs",
       "result": "DetachedSignedDto"
+    },
+    {
+      "name": "sign_session_file",
+      "parameters": "args: SignSessionFileArgs",
+      "result": "SessionSignedDto"
     },
     {
       "name": "resign_file",
