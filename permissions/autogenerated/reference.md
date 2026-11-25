@@ -809,6 +809,32 @@ Denies the create_stamp command without any pre-configured scope.
 <tr>
 <td>
 
+`majik-signature-client:allow-decrypt-signroom-file`
+
+</td>
+<td>
+
+Enables the decrypt_signroom_file command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-decrypt-signroom-file`
+
+</td>
+<td>
+
+Denies the decrypt_signroom_file command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `majik-signature-client:allow-decrypt-stamp-content`
 
 </td>
@@ -854,6 +880,32 @@ Enables the describe_mjks_map command without any pre-configured scope.
 <td>
 
 Denies the describe_mjks_map command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-encrypt-signroom-file`
+
+</td>
+<td>
+
+Enables the encrypt_signroom_file command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-encrypt-signroom-file`
+
+</td>
+<td>
+
+Denies the encrypt_signroom_file command without any pre-configured scope.
 
 </td>
 </tr>
@@ -3012,6 +3064,32 @@ Enables the sign_file_detached command without any pre-configured scope.
 <td>
 
 Denies the sign_file_detached command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-sign-session-file`
+
+</td>
+<td>
+
+Enables the sign_session_file command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-session-file`
+
+</td>
+<td>
+
+Denies the sign_session_file command without any pre-configured scope.
 
 </td>
 </tr>
