@@ -27,7 +27,7 @@ include = [
 ]
 
 [dependencies]
-majik-signature-client = "1.3.3"
+majik-signature-client = "1.3.4"
 tauri = "2"
 rusqlite = { version = "0.40", features = ["bundled"] }
 zeroize = { version = "1.9.2", features = ["serde"] }
