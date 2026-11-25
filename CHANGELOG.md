@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.3 - 2026-11-25
+
+- Expose the session-bound detached signing operation for SignRoom through the Tauri plugin command surface.
+- Depend on `majik-signature-client` 1.3.3, which provides the native Rust IPC operation.
+
+
 ## 1.2.0 - 2026-11-12
 
 - Align the Tauri plugin crate version with `majik-signature-client` 1.2.0.

@@ -1114,6 +1114,39 @@ pub async fn sign_file_detached(
 
 #[tauri::command]
 #[allow(unused_variables)]
+pub async fn sign_session_file(
+    state: Handle<'_>,
+    args: SignSessionFileArgs,
+) -> Res<SessionSignedDto> {
+    state
+        .run(move |c: &mut SignatureClient| ops::sign_session_file(c, args))
+        .await
+}
+
+#[tauri::command]
+#[allow(unused_variables)]
+pub async fn encrypt_signroom_file(
+    state: Handle<'_>,
+    args: EncryptSignRoomFileArgs,
+) -> Res<EncryptSignRoomFileDto> {
+    state
+        .run(move |c: &mut SignatureClient| ops::encrypt_signroom_file(args))
+        .await
+}
+
+#[tauri::command]
+#[allow(unused_variables)]
+pub async fn decrypt_signroom_file(
+    state: Handle<'_>,
+    args: DecryptSignRoomFileArgs,
+) -> Res<DecryptSignRoomFileDto> {
+    state
+        .run(move |c: &mut SignatureClient| ops::decrypt_signroom_file(c, args))
+        .await
+}
+
+#[tauri::command]
+#[allow(unused_variables)]
 pub async fn resign_file(state: Handle<'_>, args: ResignArgs) -> Res<SignedFileDto> {
     state
         .run(move |c: &mut SignatureClient| ops::resign_file(c, args))
