@@ -4,8 +4,8 @@
 
 - **Crate version:** `1.5.0`
 - **Rust client:** `majik-signature-client = 1.5.0`
-- **Tauri:** v2
-- **Commands:** 144 (including key-client commands, compatibility aliases, and native streaming operations)
+- **Tauri:** `2.12.7`
+- **Commands:** 149 (including key-client commands, compatibility aliases, and native streaming operations)
 - **Event channel:** `majik-signature-client:event`
 - **License:** Apache-2.0
 
@@ -148,7 +148,7 @@ try {
 
 The generated wire contract is maintained in [`contract/commands.json`](contract/commands.json). It records every command name, its Tauri argument list, return type, plugin version, event channel, and event names.
 
-The 144 commands cover:
+The 149 commands cover:
 
 | Area | Operations |
 |---|---|
@@ -215,7 +215,7 @@ The contract check verifies both generated command groups, their Tauri handler r
 
 - `tauri-plugin-majik-signature-client` `1.5.0`
 - `majik-signature-client` `1.5.0`
-- Tauri `2.x`
+- Tauri `2.12.7`
 - Rust `1.92` or newer
 
 ## License
