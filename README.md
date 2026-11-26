@@ -2,10 +2,10 @@
 
 **Majikah's Tauri v2 plugin for `majik-signature-client`.** It exposes the Rust signature client to a Tauri webview through typed Tauri commands and a single event channel. Key management, signing, verification, contacts, groups, stamps, logs, preferences, and backup/restore remain in Rust.
 
-- **Crate version:** `1.2.0`
-- **Rust client:** `majik-signature-client = 1.2.0`
+- **Crate version:** `1.5.0`
+- **Rust client:** `majik-signature-client = 1.5.0`
 - **Tauri:** v2
-- **Commands:** 137 (including the key-client command surface and compatibility aliases)
+- **Commands:** 144 (including key-client commands, compatibility aliases, and native streaming operations)
 - **Event channel:** `majik-signature-client:event`
 - **License:** Apache-2.0
 
@@ -13,7 +13,7 @@
 
 ```toml
 [dependencies]
-tauri-plugin-majik-signature-client = "1.2.0"
+tauri-plugin-majik-signature-client = "1.5.0"
 ```
 
 The plugin depends on the published `majik-signature-client` crate. It does not require a sibling checkout or a local `path` dependency.
@@ -93,13 +93,62 @@ await client.createAccount({ mnemonic, passphrase, label: "Main" });
 await client.signFile({ input: { path: "/path/to/document.pdf" } });
 ```
 
-The frontend facade keeps a small synchronous read-model for account state. Commands and mutations execute in Rust. File inputs should normally use `{ path }`, so Rust can load and validate the file without transferring large file contents through the webview. Inline base64 input remains available for small payloads; output data is returned inline when no output path is specified.
+The frontend facade keeps a small synchronous read-model for account state. Commands and mutations execute in Rust. Existing `FileInput` commands accept `{ path }` or small inline base64 payloads, but those legacy operations still materialize the file in memory (with the client's 1 GiB default limit). Use the native-path streaming commands below for large media and documents; they never transfer source-file bytes through the webview.
+
+## Path-based streaming file operations
+
+Use the streaming commands when files may be large (including multi-gigabyte MOV/MP4 files). These commands accept native paths directly; they do not call the legacy `FileInput::load()` path, return base64 file contents, or copy the entire source into the encrypted history log.
+
+| Command | Purpose |
+|---|---|
+| `sign_file_embedded_stream` | Stream-sign a file and atomically publish the signed output |
+| `sign_file_detached_stream` | Stream-sign a file and atomically publish a small `.mjksig` sidecar |
+| `verify_file_embedded_stream` | Verify an embedded signature from a native path |
+| `verify_file_detached_stream` | Verify a native file against a native `.mjksig` sidecar |
+| `sign_file_embedded_stream_with_prior` | Verify a previous signed file path and append an embedded revision |
+| `sign_file_detached_stream_with_prior` | Verify a prior file path and sidecar, then append a detached revision |
+| `cancel_stream` | Cancel an active streaming operation by its operation ID |
+
+Each streaming request carries a unique `operationId`, native `inputPath` and `outputPath` values, and optional `streaming` settings: `chunkSize` (64 KiB–8 MiB; default 1 MiB) and `maxBytes` (no default total-file-size cap). Signing accepts an `overwrite` flag; it defaults to `false`. Revision methods require `priorFilePath`; the legacy in-memory `priorFile` / `priorSignedFile` option is rejected for these methods.
+
+Progress is emitted on `majik-signature-client:event` as `{ type: "stream-progress", payload: { operationId, bytesProcessed, totalBytes } }`. Invoke `cancel_stream` with the same `operationId` to request cancellation. Cancellation is checked between bounded read/write steps and can be requested without acquiring the signature client's mutex. The returned signing result contains signature metadata and output path/size only, never the source file bytes.
+
+Streaming supports PDF, MP4/MOV, PNG/JPEG, MP3/FLAC, standard RIFF WAV, Office/ODF ZIP containers, Matroska/WebM, and the client's universal-trailer fallback. MP4/MOV embedded rewriting is intentionally restricted to layouts where a final `moov` follows `mdat`; unsafe layouts should use detached signing. Office archives are staged on disk with bounded metadata and the core 512 MiB uncompressed-content limit. Text/markup, MSIX/AppX, generic unrecognized ZIP, and RF64 WAV are not supported by streaming embedded operations. Refer to the Rust client crate documentation for the format-specific constraints.
+
+For example, listen for the progress event before invoking a command:
+
+```ts
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+
+const operationId = crypto.randomUUID();
+const unlisten = await listen("majik-signature-client:event", ({ payload }) => {
+  if (payload.type === "stream-progress" && payload.payload.operationId === operationId) {
+    console.log(payload.payload.bytesProcessed, payload.payload.totalBytes);
+  }
+});
+
+try {
+  await invoke("plugin:majik-signature-client|sign_file_embedded_stream", {
+    args: {
+      operationId,
+      inputPath: "/path/to/large-video.mov",
+      outputPath: "/path/to/large-video.signed.mov",
+      options: { mimeType: "video/quicktime" },
+      streaming: { chunkSize: 1048576 },
+      overwrite: false
+    }
+  });
+} finally {
+  unlisten();
+}
+```
 
 ## Command surface
 
 The generated wire contract is maintained in [`contract/commands.json`](contract/commands.json). It records every command name, its Tauri argument list, return type, plugin version, event channel, and event names.
 
-The 137 commands cover:
+The 144 commands cover:
 
 | Area | Operations |
 |---|---|
@@ -136,6 +185,7 @@ The stream includes the key-client lifecycle events (account creation/removal/up
 - `contact-group-change`
 - `history-log`
 - `activity-log`
+- `stream-progress`
 
 ## Locking and shutdown
 
@@ -147,6 +197,7 @@ The stream includes the key-client lifecycle events (account creation/removal/up
 
 - `src/commands.rs`
 - `src/lib.rs` command registration
+- The hand-written native-path streaming handlers in `src/stream_commands.rs` are checked against the contract by `tests/check_generated.py`
 - `build.rs` permission generation manifest
 - `permissions/default.toml`
 - `contract/commands.json`
@@ -158,14 +209,14 @@ python3 gen.py
 python3 tests/check_generated.py
 ```
 
-The contract check verifies that the generated handler, command functions, build manifest, and default permission list all contain the same unique command set.
+The contract check verifies both generated command groups, their Tauri handler registrations, the build manifest, and the default permission list against the same unique command set.
 
 ## Compatibility
 
-- `tauri-plugin-majik-signature-client` `1.2.0`
-- `majik-signature-client` `1.2.0`
+- `tauri-plugin-majik-signature-client` `1.5.0`
+- `majik-signature-client` `1.5.0`
 - Tauri `2.x`
-- Rust `1.80` or newer
+- Rust `1.92` or newer
 
 ## License
 
