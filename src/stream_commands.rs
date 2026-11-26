@@ -234,7 +234,7 @@ fn detached_file_options(
         Some(input) => {
             if let FileInput::Bytes { data, .. } = &input {
                 // Bound the encoded payload before base64 decoding allocates its byte buffer.
-                let max_encoded_bytes = ((MAX_ENVELOPE_BYTES + 2) / 3) * 4;
+                let max_encoded_bytes = MAX_ENVELOPE_BYTES.div_ceil(3) * 4;
                 if data.trim().len() as u64 > max_encoded_bytes {
                     return Err(SignatureClientError::Invalid(
                         "The detached envelope exceeds the 16 MiB streaming input limit.".into(),
