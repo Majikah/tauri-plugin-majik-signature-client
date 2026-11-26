@@ -9,7 +9,7 @@ use majik_signature_client::ipc::dto::{
     resolve_signers, CtxDto, ResolvedTarget, SignDetachedOptionsDto, SignFileOptionsDto,
     VerifyTargetDto,
 };
-use majik_signature_client::ipc::input::LoadLimits;
+use majik_signature_client::ipc::input::{FileInput, LoadLimits};
 use majik_signature_client::logs::HistorySource;
 use majik_signature_client::majik_signature::{
     EnvelopeInput, MajikSignatureJSON, StreamingHashProgress,
@@ -236,6 +236,15 @@ fn detached_file_options(
         .transpose()?;
     let existing_envelope = match dto.existing_envelope {
         Some(input) => {
+            if let FileInput::Bytes { data, .. } = &input {
+                // Bound the encoded payload before base64 decoding allocates its byte buffer.
+                let max_encoded_bytes = ((MAX_ENVELOPE_BYTES + 2) / 3) * 4;
+                if data.trim().len() as u64 > max_encoded_bytes {
+                    return Err(SignatureClientError::Invalid(
+                        "The detached envelope exceeds the 16 MiB streaming input limit.".into(),
+                    ));
+                }
+            }
             let loaded = input.load_with(LoadLimits {
                 max_bytes: MAX_ENVELOPE_BYTES,
                 allow_empty: false,
