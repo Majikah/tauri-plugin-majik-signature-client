@@ -102,7 +102,7 @@ def main() -> None:
         fail("commands.rs function list/order does not match the regular command contract")
 
     streaming_source = (ROOT / "src/stream_commands.rs").read_text(encoding="utf-8")
-    streaming_functions = re.findall(r"pub (?:async )?fn ([a-z0-9_]+)\s*\(", streaming_source)
+    streaming_functions = re.findall(r"pub (?:async )?fn ([a-z0-9_]+)(?:<[^>]+>)?\s*\(", streaming_source)
     if streaming_functions != streaming:
         fail("stream_commands.rs function list/order does not match the streaming command contract")
 
