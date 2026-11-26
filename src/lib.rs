@@ -16,6 +16,7 @@
 
 mod commands;
 mod handle;
+mod stream_commands;
 
 pub use handle::SigHandle;
 
@@ -172,6 +173,13 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             commands::restore_app_data_selective,
             commands::get_solana_signer_address,
             commands::sign_solana_message,
+            stream_commands::sign_file_embedded_stream,
+            stream_commands::sign_file_detached_stream,
+            stream_commands::sign_file_embedded_stream_with_prior,
+            stream_commands::sign_file_detached_stream_with_prior,
+            stream_commands::verify_file_embedded_stream,
+            stream_commands::verify_file_detached_stream,
+            stream_commands::cancel_stream,
         ])
         .setup(move |app, _api| {
             let client = SignatureClient::with_sqlite(conn)?;
