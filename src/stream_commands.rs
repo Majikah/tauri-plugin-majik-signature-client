@@ -27,6 +27,7 @@ type Res<T> = Result<T, SignatureClientError>;
 
 const DEFAULT_CHUNK_SIZE: usize = 1024 * 1024;
 const MAX_ENVELOPE_BYTES: u64 = 16 * 1024 * 1024;
+const STREAM_PROGRESS_EVENT_CHANNEL: &str = "majik-signature-client:stream-progress";
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -302,7 +303,7 @@ where
                     total_bytes: progress.total_bytes,
                 },
             };
-            let _ = app.emit(majik_signature_client::ipc::EVENT_CHANNEL, event);
+            let _ = app.emit(STREAM_PROGRESS_EVENT_CHANNEL, event);
             last_emitted_at = Some(Instant::now());
             last_emitted_bytes = progress.bytes_processed;
         }
