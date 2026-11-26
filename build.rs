@@ -141,6 +141,13 @@ const COMMANDS: &[&str] = &[
     "restore_app_data_selective",
     "get_solana_signer_address",
     "sign_solana_message",
+    "sign_file_embedded_stream",
+    "sign_file_detached_stream",
+    "sign_file_embedded_stream_with_prior",
+    "sign_file_detached_stream_with_prior",
+    "verify_file_embedded_stream",
+    "verify_file_detached_stream",
+    "cancel_stream",
 ];
 
 fn main() {
