@@ -143,4 +143,11 @@ permissions = [
     "allow-restore-app-data-selective",
     "allow-get-solana-signer-address",
     "allow-sign-solana-message",
+    "allow-sign-file-embedded-stream",
+    "allow-sign-file-detached-stream",
+    "allow-sign-file-embedded-stream-with-prior",
+    "allow-sign-file-detached-stream-with-prior",
+    "allow-verify-file-embedded-stream",
+    "allow-verify-file-detached-stream",
+    "allow-cancel-stream",
 ]
