@@ -46,8 +46,10 @@ def main() -> None:
         fail("command contract version is not 1.5.0")
     if contract.get("eventChannel") != "majik-signature-client:event":
         fail("unexpected event channel")
-    if "stream-progress" not in contract.get("eventTypes", []):
-        fail("stream-progress event is missing from the contract")
+    if contract.get("streamProgressEventChannel") != "majik-signature-client:stream-progress":
+        fail("unexpected streaming progress event channel")
+    if "stream-progress" in contract.get("eventTypes", []):
+        fail("stream-progress must remain isolated from the snapshot-refresh event channel")
     if len(names) != contract.get("commandCount"):
         fail("commandCount does not match commands array")
     if len(names) != len(set(names)):

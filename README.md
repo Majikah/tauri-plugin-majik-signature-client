@@ -1,12 +1,13 @@
 # tauri-plugin-majik-signature-client
 
-**Majikah's Tauri v2 plugin for `majik-signature-client`.** It exposes the Rust signature client to a Tauri webview through typed Tauri commands and a single event channel. Key management, signing, verification, contacts, groups, stamps, logs, preferences, and backup/restore remain in Rust.
+**Majikah's Tauri v2 plugin for `majik-signature-client`.** It exposes the Rust signature client to a Tauri webview through typed Tauri commands, a primary event channel, and a dedicated streaming progress channel. Key management, signing, verification, contacts, groups, stamps, logs, preferences, and backup/restore remain in Rust.
 
 - **Crate version:** `1.5.0`
 - **Rust client:** `majik-signature-client = 1.5.0`
 - **Tauri:** `2.12.7`
 - **Commands:** 149 (including key-client commands, compatibility aliases, and native streaming operations)
 - **Event channel:** `majik-signature-client:event`
+- **Streaming progress channel:** `majik-signature-client:stream-progress`
 - **License:** Apache-2.0
 
 ## Add the dependency
@@ -172,7 +173,7 @@ Not every public Rust method is a separate IPC command. Internal accessors, subs
 
 The plugin forwards events on `majik-signature-client:event`. Each event uses the `{ "type": "...", "payload": ... }` envelope expected by the TypeScript facade.
 
-The stream includes the key-client lifecycle events (account creation/removal/update, active-account changes, lock/unlock, errors and backup restore) and signature-client events:
+The primary event channel includes the key-client lifecycle events (account creation/removal/update, active-account changes, lock/unlock, errors and backup restore) and signature-client state events:
 
 - `sign`
 - `verify`
@@ -185,7 +186,8 @@ The stream includes the key-client lifecycle events (account creation/removal/up
 - `contact-group-change`
 - `history-log`
 - `activity-log`
-- `stream-progress`
+
+High-volume streaming progress notifications are emitted separately on `majik-signature-client:stream-progress` as `{ type: "stream-progress", payload: { operationId, bytesProcessed, totalBytes } }`. This keeps progress updates out of the inherited snapshot-refresh event pipeline.
 
 ## Locking and shutdown
 
