@@ -72,19 +72,20 @@ impl SigHandle {
         }
 
         let inner = Arc::clone(&self.inner);
-        let result = tauri::async_runtime::spawn_blocking(move || {
+        let task_result = tauri::async_runtime::spawn_blocking(move || {
             let mut guard = inner.lock().map_err(|_| SignatureClientError::Poisoned)?;
             f(&mut guard, cancellation)
         })
-        .await
-        .map_err(|e| SignatureClientError::Storage(format!("streaming task failed: {e}")))?;
+        .await;
 
+        // Always unregister, including when the blocking task panics and its JoinError is set.
         self.streams
             .lock()
             .map_err(|_| SignatureClientError::Poisoned)?
             .remove(&operation_id);
 
-        result
+        task_result
+            .map_err(|e| SignatureClientError::Storage(format!("streaming task failed: {e}")))?
     }
 
     /// Request cancellation without taking the client mutex. The active operation checks this
@@ -116,14 +117,15 @@ impl SigHandle {
 
     /// Best-effort shutdown wipe of unlocked keys and decrypted stamps.
     pub fn lock_all_blocking(&self) {
-        if let Ok(mut guard) = self.inner.lock() {
-            guard.keys_mut().lock_all_accounts();
-            let _ = guard.lock_stamps();
-        }
+        // Signal cancellation before waiting for a possibly busy streaming client operation.
         if let Ok(active) = self.streams.lock() {
             for cancellation in active.values() {
                 cancellation.store(true, Ordering::Release);
             }
+        }
+        if let Ok(mut guard) = self.inner.lock() {
+            guard.keys_mut().lock_all_accounts();
+            let _ = guard.lock_stamps();
         }
     }
 }
