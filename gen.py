@@ -329,6 +329,7 @@ contract = {
     "plugin": "majik-signature-client",
     "version": "1.5.0",
     "eventChannel": "majik-signature-client:event",
+    "streamProgressEventChannel": "majik-signature-client:stream-progress",
     "eventTypes": [
         "new-account",
         "removed-account",
@@ -349,7 +350,6 @@ contract = {
         "contact-group-change",
         "history-log",
         "activity-log",
-        "stream-progress",
     ],
     "commandCount": len(all_names),
     "commands": [
