@@ -15,9 +15,8 @@ use majik_signature_client::majik_signature::{
     EnvelopeInput, MajikSignatureJSON, StreamingHashProgress,
 };
 use majik_signature_client::{
-    SignatureClient, SignatureClientError, SignDetachedFileOptions, SignFileOptions,
-    StreamingDetachedSignResult, StreamingEmbeddedSignResult, StreamingFileOptions,
-    VerifyResult,
+    SignDetachedFileOptions, SignFileOptions, SignatureClient, SignatureClientError,
+    StreamingDetachedSignResult, StreamingEmbeddedSignResult, StreamingFileOptions, VerifyResult,
 };
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Runtime, State};
@@ -193,10 +192,7 @@ struct StreamingProgressEvent {
     payload: StreamingProgressPayload,
 }
 
-fn sign_file_options(
-    client: &SignatureClient,
-    dto: SignFileOptionsDto,
-) -> Res<SignFileOptions> {
+fn sign_file_options(client: &SignatureClient, dto: SignFileOptionsDto) -> Res<SignFileOptions> {
     if dto.prior_signed_file.is_some() {
         return Err(SignatureClientError::Invalid(
             "Streaming revisions require priorFilePath; the in-memory priorSignedFile field is not accepted.".into(),
@@ -279,10 +275,7 @@ fn run_with_streaming_options<R, T, F>(
 ) -> Res<T>
 where
     R: Runtime,
-    F: for<'a> FnOnce(
-        &mut SignatureClient,
-        &mut StreamingFileOptions<'a>,
-    ) -> Res<T>,
+    F: for<'a> FnOnce(&mut SignatureClient, &mut StreamingFileOptions<'a>) -> Res<T>,
 {
     // Avoid flooding the webview with one IPC event per 1 MiB chunk on multi-gigabyte files.
     // Emit at most every 100 ms or every 8 MiB, whichever comes first, and always emit completion.
@@ -293,10 +286,8 @@ where
             .as_ref()
             .map(|last| last.elapsed() >= Duration::from_millis(100))
             .unwrap_or(true);
-        let enough_bytes = progress
-            .bytes_processed
-            .saturating_sub(last_emitted_bytes)
-            >= 8 * 1024 * 1024;
+        let enough_bytes =
+            progress.bytes_processed.saturating_sub(last_emitted_bytes) >= 8 * 1024 * 1024;
         let completed = progress
             .total_bytes
             .map(|total| progress.bytes_processed >= total)
