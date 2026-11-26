@@ -2,6 +2,7 @@
   "plugin": "majik-signature-client",
   "version": "1.5.0",
   "eventChannel": "majik-signature-client:event",
+  "streamProgressEventChannel": "majik-signature-client:stream-progress",
   "eventTypes": [
     "new-account",
     "removed-account",
@@ -21,8 +22,7 @@
     "removed-contact-group",
     "contact-group-change",
     "history-log",
-    "activity-log",
-    "stream-progress"
+    "activity-log"
   ],
   "commandCount": 149,
   "commands": [
