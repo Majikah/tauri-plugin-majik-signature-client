@@ -131,14 +131,14 @@ pub struct StreamingDetachedVerifyArgs {
     pub streaming: StreamingFileOptionsDto,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct StreamingOutputDto {
     path: String,
     size_bytes: u64,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StreamingSignResultDto {
     signature: MajikSignatureJSON,
