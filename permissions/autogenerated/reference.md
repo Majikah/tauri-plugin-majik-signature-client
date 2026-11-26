@@ -146,6 +146,13 @@ Allows every majik-signature-client command.
 - `allow-restore-app-data-selective`
 - `allow-get-solana-signer-address`
 - `allow-sign-solana-message`
+- `allow-sign-file-embedded-stream`
+- `allow-sign-file-detached-stream`
+- `allow-sign-file-embedded-stream-with-prior`
+- `allow-sign-file-detached-stream-with-prior`
+- `allow-verify-file-embedded-stream`
+- `allow-verify-file-detached-stream`
+- `allow-cancel-stream`
 
 ## Permission Table
 
@@ -568,6 +575,32 @@ Enables the cancel_pending_tsa command without any pre-configured scope.
 <td>
 
 Denies the cancel_pending_tsa command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-cancel-stream`
+
+</td>
+<td>
+
+Enables the cancel_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-cancel-stream`
+
+</td>
+<td>
+
+Denies the cancel_stream command without any pre-configured scope.
 
 </td>
 </tr>
@@ -3071,6 +3104,110 @@ Denies the sign_file_detached command without any pre-configured scope.
 <tr>
 <td>
 
+`majik-signature-client:allow-sign-file-detached-stream`
+
+</td>
+<td>
+
+Enables the sign_file_detached_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-file-detached-stream`
+
+</td>
+<td>
+
+Denies the sign_file_detached_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-sign-file-detached-stream-with-prior`
+
+</td>
+<td>
+
+Enables the sign_file_detached_stream_with_prior command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-file-detached-stream-with-prior`
+
+</td>
+<td>
+
+Denies the sign_file_detached_stream_with_prior command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-sign-file-embedded-stream`
+
+</td>
+<td>
+
+Enables the sign_file_embedded_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-file-embedded-stream`
+
+</td>
+<td>
+
+Denies the sign_file_embedded_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-sign-file-embedded-stream-with-prior`
+
+</td>
+<td>
+
+Enables the sign_file_embedded_stream_with_prior command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-file-embedded-stream-with-prior`
+
+</td>
+<td>
+
+Denies the sign_file_embedded_stream_with_prior command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `majik-signature-client:allow-sign-session-file`
 
 </td>
@@ -3636,6 +3773,58 @@ Enables the verify_file_detached_chain command without any pre-configured scope.
 <td>
 
 Denies the verify_file_detached_chain command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-verify-file-detached-stream`
+
+</td>
+<td>
+
+Enables the verify_file_detached_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-verify-file-detached-stream`
+
+</td>
+<td>
+
+Denies the verify_file_detached_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-verify-file-embedded-stream`
+
+</td>
+<td>
+
+Enables the verify_file_embedded_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-verify-file-embedded-stream`
+
+</td>
+<td>
+
+Denies the verify_file_embedded_stream command without any pre-configured scope.
 
 </td>
 </tr>
