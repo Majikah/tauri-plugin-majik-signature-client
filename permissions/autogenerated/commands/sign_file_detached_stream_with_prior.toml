@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-sign-file-detached-stream-with-prior"
+description = "Enables the sign_file_detached_stream_with_prior command without any pre-configured scope."
+commands.allow = ["sign_file_detached_stream_with_prior"]
+
+[[permission]]
+identifier = "deny-sign-file-detached-stream-with-prior"
+description = "Denies the sign_file_detached_stream_with_prior command without any pre-configured scope."
+commands.deny = ["sign_file_detached_stream_with_prior"]
