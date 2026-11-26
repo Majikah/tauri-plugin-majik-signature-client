@@ -69,6 +69,25 @@ def main() -> None:
             text=True,
         )
 
+        # gen.py emits compact Rust source; the checked-in files are rustfmt-formatted.
+        # Normalize generated Rust before byte-for-byte comparison.
+        for rust_file in ("src/commands.rs", "src/lib.rs", "build.rs"):
+            subprocess.run(
+                [
+                    "rustfmt",
+                    "--edition",
+                    "2021",
+                    "--config",
+                    "skip_children=true",
+                    rust_file,
+                ],
+                cwd=temp_root,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+
         for relative in GENERATED:
             actual = ROOT / relative
             regenerated = temp_root / relative
