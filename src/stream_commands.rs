@@ -3,6 +3,7 @@
 
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 
 use majik_signature_client::ipc::dto::{
     resolve_signers, CtxDto, ResolvedTarget, SignDetachedOptionsDto, SignFileOptionsDto,
@@ -274,16 +275,37 @@ where
         &mut StreamingFileOptions<'a>,
     ) -> Res<T>,
 {
+    // Avoid flooding the webview with one IPC event per 1 MiB chunk on multi-gigabyte files.
+    // Emit at most every 100 ms or every 8 MiB, whichever comes first, and always emit completion.
+    let mut last_emitted_at: Option<Instant> = None;
+    let mut last_emitted_bytes = 0u64;
     let mut on_progress = move |progress: StreamingHashProgress| {
-        let event = StreamingProgressEvent {
-            event_type: "stream-progress",
-            payload: StreamingProgressPayload {
-                operation_id: operation_id.clone(),
-                bytes_processed: progress.bytes_processed,
-                total_bytes: progress.total_bytes,
-            },
-        };
-        let _ = app.emit(majik_signature_client::ipc::EVENT_CHANNEL, event);
+        let interval_elapsed = last_emitted_at
+            .as_ref()
+            .map(|last| last.elapsed() >= Duration::from_millis(100))
+            .unwrap_or(true);
+        let enough_bytes = progress
+            .bytes_processed
+            .saturating_sub(last_emitted_bytes)
+            >= 8 * 1024 * 1024;
+        let completed = progress
+            .total_bytes
+            .map(|total| progress.bytes_processed >= total)
+            .unwrap_or(false);
+
+        if interval_elapsed || enough_bytes || completed {
+            let event = StreamingProgressEvent {
+                event_type: "stream-progress",
+                payload: StreamingProgressPayload {
+                    operation_id: operation_id.clone(),
+                    bytes_processed: progress.bytes_processed,
+                    total_bytes: progress.total_bytes,
+                },
+            };
+            let _ = app.emit(majik_signature_client::ipc::EVENT_CHANNEL, event);
+            last_emitted_at = Some(Instant::now());
+            last_emitted_bytes = progress.bytes_processed;
+        }
     };
     let mut stream = StreamingFileOptions {
         chunk_size: config.chunk_size.unwrap_or(DEFAULT_CHUNK_SIZE),
