@@ -1,6 +1,6 @@
 {
   "plugin": "majik-signature-client",
-  "version": "1.2.2",
+  "version": "1.5.0",
   "eventChannel": "majik-signature-client:event",
   "eventTypes": [
     "new-account",
@@ -21,9 +21,10 @@
     "removed-contact-group",
     "contact-group-change",
     "history-log",
-    "activity-log"
+    "activity-log",
+    "stream-progress"
   ],
-  "commandCount": 142,
+  "commandCount": 149,
   "commands": [
     {
       "name": "open_session",
@@ -734,6 +735,48 @@
       "name": "sign_solana_message",
       "parameters": "message: Vec<u8>, account_id: Option<String>",
       "result": "Vec<u8>"
+    },
+    {
+      "name": "sign_file_embedded_stream",
+      "parameters": "args: StreamingEmbeddedSignArgs",
+      "result": "StreamingSignResultDto",
+      "module": "stream_commands"
+    },
+    {
+      "name": "sign_file_detached_stream",
+      "parameters": "args: StreamingDetachedSignArgs",
+      "result": "StreamingSignResultDto",
+      "module": "stream_commands"
+    },
+    {
+      "name": "sign_file_embedded_stream_with_prior",
+      "parameters": "args: StreamingEmbeddedRevisionArgs",
+      "result": "StreamingSignResultDto",
+      "module": "stream_commands"
+    },
+    {
+      "name": "sign_file_detached_stream_with_prior",
+      "parameters": "args: StreamingDetachedRevisionArgs",
+      "result": "StreamingSignResultDto",
+      "module": "stream_commands"
+    },
+    {
+      "name": "verify_file_embedded_stream",
+      "parameters": "args: StreamingVerifyArgs",
+      "result": "VerifyResult",
+      "module": "stream_commands"
+    },
+    {
+      "name": "verify_file_detached_stream",
+      "parameters": "args: StreamingDetachedVerifyArgs",
+      "result": "VerifyResult",
+      "module": "stream_commands"
+    },
+    {
+      "name": "cancel_stream",
+      "parameters": "operation_id: String",
+      "result": "bool",
+      "module": "stream_commands"
     }
   ]
 }
