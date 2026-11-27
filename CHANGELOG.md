@@ -2,6 +2,11 @@
 
 ## 1.5.1 - 2026-11-27
 
+- Handle fallible `sysinfo 0.40.4` system initialization without panicking; use finite cgroup limits as a fallback when host probing is unavailable.
+- Raise the maximum explicit streaming chunk override from 128 MiB to 256 MiB and fix the recommendation clamp's `u64`/`usize` type mismatch.
+- Set the plugin MSRV to Rust 1.95 to match `sysinfo 0.40.4`.
+
+
 - Add a plugin-managed SystemResourceManager using sysinfo 0.38.4, preserving the Rust 1.92 MSRV.
 - Expose system-profile and recommended-streaming-configuration commands.
 - Resolve omitted chunk sizes from current available memory and common Linux cgroup memory limits.

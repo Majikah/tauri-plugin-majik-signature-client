@@ -11,7 +11,7 @@ use sysinfo::System;
 
 const MIB: u64 = 1024 * 1024;
 const MIN_CHUNK_SIZE: usize = 64 * 1024;
-const MAX_OVERRIDE_CHUNK_SIZE: usize = 128 * 1024 * 1024;
+const MAX_OVERRIDE_CHUNK_SIZE: usize = 256 * 1024 * 1024;
 const MAX_AUTOMATIC_CHUNK_SIZE: usize = 64 * 1024 * 1024;
 const MAX_STREAMING_MEMORY_BUDGET: u64 = 256 * MIB;
 
@@ -22,6 +22,8 @@ pub struct SystemProfile {
     pub total_memory_bytes: u64,
     pub available_memory_bytes: u64,
     pub host_available_memory_bytes: u64,
+    /// Whether sysinfo successfully initialized and returned host memory measurements.
+    pub memory_probe_succeeded: bool,
     pub cgroup_memory_limit_bytes: Option<u64>,
     pub cpu_threads: usize,
     pub architecture: String,
@@ -46,20 +48,40 @@ pub struct SystemResourceManager;
 
 impl SystemResourceManager {
     pub fn inspect_system(&self) -> SystemProfile {
-        let mut system = System::new();
-        system.refresh_memory();
+        // sysinfo 0.40 makes System initialization fallible on unsupported platforms and
+        // when the underlying probes cannot be initialized. Do not panic or block streaming:
+        // fall back to finite cgroup limits where available, otherwise use the smallest
+        // conservative automatic chunk recommendation.
+        let (total_memory, host_available, memory_probe_succeeded) = match System::new() {
+            Ok(mut system) => {
+                system.refresh_memory();
+                (system.total_memory(), system.available_memory(), true)
+            }
+            Err(_) => (0, 0, false),
+        };
 
-        let total_memory = system.total_memory();
-        let host_available = system.available_memory();
-        let cgroup = detect_cgroup_memory_limit(total_memory);
-        let available = cgroup
-            .map(|(limit, usage)| host_available.min(limit.saturating_sub(usage)))
-            .unwrap_or(host_available);
+        // When sysinfo is unavailable, still allow a finite cgroup limit to inform the
+        // recommendation rather than treating every Linux container as having zero memory.
+        let cgroup_reference_total = if total_memory == 0 {
+            u64::MAX
+        } else {
+            total_memory
+        };
+        let cgroup = detect_cgroup_memory_limit(cgroup_reference_total);
+        let available = match (memory_probe_succeeded, cgroup) {
+            (true, Some((limit, usage))) => {
+                host_available.min(limit.saturating_sub(usage))
+            }
+            (true, None) => host_available,
+            (false, Some((limit, usage))) => limit.saturating_sub(usage),
+            (false, None) => 0,
+        };
 
         SystemProfile {
             total_memory_bytes: total_memory,
             available_memory_bytes: available,
             host_available_memory_bytes: host_available,
+            memory_probe_succeeded,
             cgroup_memory_limit_bytes: cgroup.map(|(limit, _)| limit),
             cpu_threads: thread::available_parallelism()
                 .map(|n| n.get())
@@ -114,7 +136,7 @@ fn recommended_chunk_size(available_memory: u64) -> usize {
         256 * 1024
     };
 
-    recommended.clamp(MIN_CHUNK_SIZE, MAX_AUTOMATIC_CHUNK_SIZE)
+    recommended.clamp(MIN_CHUNK_SIZE as u64, MAX_AUTOMATIC_CHUNK_SIZE as u64) as usize
 }
 
 fn detect_cgroup_memory_limit(total_memory: u64) -> Option<(u64, u64)> {
@@ -158,5 +180,6 @@ mod tests {
         assert_eq!(recommended_chunk_size(4 * 1024 * MIB), 32 * 1024 * 1024);
         assert_eq!(recommended_chunk_size(8 * 1024 * MIB), 64 * 1024 * 1024);
         assert!(recommended_chunk_size(u64::MAX) <= MAX_AUTOMATIC_CHUNK_SIZE);
+        assert_eq!(MAX_OVERRIDE_CHUNK_SIZE, 256 * MIB);
     }
 }
