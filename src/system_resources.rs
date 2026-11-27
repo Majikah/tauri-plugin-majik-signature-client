@@ -178,6 +178,6 @@ mod tests {
         assert_eq!(recommended_chunk_size(4 * 1024 * MIB), 32 * 1024 * 1024);
         assert_eq!(recommended_chunk_size(8 * 1024 * MIB), 64 * 1024 * 1024);
         assert!(recommended_chunk_size(u64::MAX) <= MAX_AUTOMATIC_CHUNK_SIZE);
-        assert_eq!(MAX_OVERRIDE_CHUNK_SIZE, 256 * MIB);
+        assert_eq!(MAX_OVERRIDE_CHUNK_SIZE, 256 * 1024 * 1024);
     }
 }
