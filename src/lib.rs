@@ -17,8 +17,10 @@
 mod commands;
 mod handle;
 mod stream_commands;
+mod system_resources;
 
 pub use handle::SigHandle;
+pub use system_resources::{RecommendedStreamingConfig, SystemProfile, SystemResourceManager};
 
 use majik_signature_client::{SharedConnection, SignatureClient};
 use tauri::plugin::{Builder, TauriPlugin};
@@ -180,12 +182,15 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             stream_commands::verify_file_embedded_stream,
             stream_commands::verify_file_detached_stream,
             stream_commands::cancel_stream,
+            stream_commands::get_system_profile,
+            stream_commands::get_recommended_streaming_config,
         ])
         .setup(move |app, _api| {
             let client = SignatureClient::with_sqlite(conn)?;
             let handle = SigHandle::new(client);
             handle.forward_events(app.clone());
             app.manage(handle);
+            app.manage(SystemResourceManager);
             Ok(())
         })
         .on_event(|app, event| {

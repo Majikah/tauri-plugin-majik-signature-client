@@ -148,6 +148,8 @@ const COMMANDS: &[&str] = &[
     "verify_file_embedded_stream",
     "verify_file_detached_stream",
     "cancel_stream",
+    "get_system_profile",
+    "get_recommended_streaming_config",
 ];
 
 fn main() {

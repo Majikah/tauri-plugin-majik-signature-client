@@ -19,21 +19,25 @@ use majik_signature_client::{
     StreamingDetachedSignResult, StreamingEmbeddedSignResult, StreamingFileOptions, VerifyResult,
 };
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, Runtime, State};
+use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 
 use crate::handle::SigHandle;
+use crate::system_resources::{RecommendedStreamingConfig, SystemProfile, SystemResourceManager};
 
 type Res<T> = Result<T, SignatureClientError>;
 
-const DEFAULT_CHUNK_SIZE: usize = 1024 * 1024;
+const MIN_CHUNK_SIZE: usize = 64 * 1024;
+const MAX_CHUNK_SIZE: usize = 256 * 1024 * 1024;
 const MAX_ENVELOPE_BYTES: u64 = 16 * 1024 * 1024;
 const STREAM_PROGRESS_EVENT_CHANNEL: &str = "majik-signature-client:stream-progress";
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StreamingFileOptionsDto {
-    /// Read/write chunk size. The client validates the supported 64 KiB–8 MiB range.
+    /// Preferred read/write chunk size. Omit or set to null for the current system recommendation.
     pub chunk_size: Option<usize>,
+    /// Disable fallback when an explicit chunk-size allocation fails.
+    pub strict_chunk_size: Option<bool>,
     /// Optional maximum size for the current file and any prior revision file.
     pub max_bytes: Option<u64>,
 }
@@ -184,6 +188,9 @@ struct StreamingProgressPayload {
     operation_id: String,
     bytes_processed: u64,
     total_bytes: Option<u64>,
+    attempt: usize,
+    effective_chunk_size: usize,
+    adaptive_fallback: bool,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -272,49 +279,113 @@ fn run_with_streaming_options<R, T, F>(
     operation_id: String,
     cancellation: Arc<AtomicBool>,
     config: StreamingFileOptionsDto,
-    operation: F,
+    mut operation: F,
 ) -> Res<T>
 where
     R: Runtime,
-    F: for<'a> FnOnce(&mut SignatureClient, &mut StreamingFileOptions<'a>) -> Res<T>,
+    F: for<'a> FnMut(&mut SignatureClient, &mut StreamingFileOptions<'a>) -> Res<T>,
 {
-    // Avoid flooding the webview with one IPC event per 1 MiB chunk on multi-gigabyte files.
-    // Emit at most every 100 ms or every 8 MiB, whichever comes first, and always emit completion.
-    let mut last_emitted_at: Option<Instant> = None;
-    let mut last_emitted_bytes = 0u64;
-    let mut on_progress = move |progress: StreamingHashProgress| {
-        let interval_elapsed = last_emitted_at
-            .as_ref()
-            .map(|last| last.elapsed() >= Duration::from_millis(100))
-            .unwrap_or(true);
-        let enough_bytes =
-            progress.bytes_processed.saturating_sub(last_emitted_bytes) >= 8 * 1024 * 1024;
-        let completed = progress
-            .total_bytes
-            .map(|total| progress.bytes_processed >= total)
-            .unwrap_or(false);
+    let manager = app.state::<SystemResourceManager>();
+    let recommended = manager.recommend_streaming_config().chunk_size;
+    let requested = config.chunk_size.unwrap_or(recommended);
 
-        if interval_elapsed || enough_bytes || completed {
-            let event = StreamingProgressEvent {
-                event_type: "stream-progress",
-                payload: StreamingProgressPayload {
-                    operation_id: operation_id.clone(),
-                    bytes_processed: progress.bytes_processed,
-                    total_bytes: progress.total_bytes,
-                },
-            };
-            let _ = app.emit(STREAM_PROGRESS_EVENT_CHANNEL, event);
-            last_emitted_at = Some(Instant::now());
-            last_emitted_bytes = progress.bytes_processed;
+    if !(MIN_CHUNK_SIZE..=MAX_CHUNK_SIZE).contains(&requested) {
+        return Err(SignatureClientError::Invalid(format!(
+            "Streaming chunk size must be between {MIN_CHUNK_SIZE} and {MAX_CHUNK_SIZE} bytes"
+        )));
+    }
+
+    let mut candidates = vec![requested];
+    if !config.strict_chunk_size.unwrap_or(false) {
+        // On a failed explicit override, retry the machine recommendation first when it is
+        // smaller than the override. Then progressively halve until the supported minimum.
+        if recommended < requested && !candidates.contains(&recommended) {
+            candidates.push(recommended);
         }
-    };
-    let mut stream = StreamingFileOptions {
-        chunk_size: config.chunk_size.unwrap_or(DEFAULT_CHUNK_SIZE),
-        max_bytes: config.max_bytes,
-        cancellation: Some(cancellation.as_ref()),
-        on_progress: Some(&mut on_progress),
-    };
-    operation(client, &mut stream)
+        let mut next = *candidates.last().unwrap_or(&requested);
+        while next > MIN_CHUNK_SIZE {
+            next = (next / 2).max(MIN_CHUNK_SIZE);
+            if !candidates.contains(&next) {
+                candidates.push(next);
+            }
+        }
+    }
+
+    let mut last_total_bytes = None;
+    for (attempt_index, chunk_size) in candidates.iter().copied().enumerate() {
+        let adaptive_fallback = attempt_index > 0;
+        if adaptive_fallback {
+            // Explicitly reset progress so clients can represent a retry instead of showing a
+            // percentage from the failed attempt as though it were still current.
+            let _ = app.emit(
+                STREAM_PROGRESS_EVENT_CHANNEL,
+                StreamingProgressEvent {
+                    event_type: "stream-progress",
+                    payload: StreamingProgressPayload {
+                        operation_id: operation_id.clone(),
+                        bytes_processed: 0,
+                        total_bytes: last_total_bytes,
+                        attempt: attempt_index + 1,
+                        effective_chunk_size: chunk_size,
+                        adaptive_fallback: true,
+                    },
+                },
+            );
+        }
+
+        let mut last_emitted_at: Option<Instant> = None;
+        let mut last_emitted_bytes = 0u64;
+        let mut on_progress = |progress: StreamingHashProgress| {
+            last_total_bytes = progress.total_bytes.or(last_total_bytes);
+            let interval_elapsed = last_emitted_at
+                .as_ref()
+                .map(|last| last.elapsed() >= Duration::from_millis(100))
+                .unwrap_or(true);
+            let enough_bytes =
+                progress.bytes_processed.saturating_sub(last_emitted_bytes) >= 8 * 1024 * 1024;
+            let completed = progress
+                .total_bytes
+                .map(|total| progress.bytes_processed >= total)
+                .unwrap_or(false);
+
+            if interval_elapsed || enough_bytes || completed {
+                let event = StreamingProgressEvent {
+                    event_type: "stream-progress",
+                    payload: StreamingProgressPayload {
+                        operation_id: operation_id.clone(),
+                        bytes_processed: progress.bytes_processed,
+                        total_bytes: progress.total_bytes,
+                        attempt: attempt_index + 1,
+                        effective_chunk_size: chunk_size,
+                        adaptive_fallback,
+                    },
+                };
+                let _ = app.emit(STREAM_PROGRESS_EVENT_CHANNEL, event);
+                last_emitted_at = Some(Instant::now());
+                last_emitted_bytes = progress.bytes_processed;
+            }
+        };
+
+        let mut stream = StreamingFileOptions {
+            chunk_size,
+            max_bytes: config.max_bytes,
+            cancellation: Some(cancellation.as_ref()),
+            on_progress: Some(&mut on_progress),
+        };
+
+        match operation(client, &mut stream) {
+            Err(error)
+                if error.kind() == "memoryAllocation" && attempt_index + 1 < candidates.len() =>
+            {
+                continue;
+            }
+            result => return result,
+        }
+    }
+
+    Err(SignatureClientError::MemoryAllocation {
+        message: "Unable to allocate a streaming buffer at the minimum supported chunk size. Close other applications and retry.".into(),
+    })
 }
 
 #[tauri::command]
@@ -576,4 +647,16 @@ pub async fn verify_file_detached_stream<R: Runtime>(
 #[tauri::command]
 pub fn cancel_stream(state: State<'_, SigHandle>, operation_id: String) -> bool {
     state.cancel_stream(&operation_id)
+}
+
+#[tauri::command]
+pub fn get_system_profile(resources: State<'_, SystemResourceManager>) -> SystemProfile {
+    resources.inspect_system()
+}
+
+#[tauri::command]
+pub fn get_recommended_streaming_config(
+    resources: State<'_, SystemResourceManager>,
+) -> RecommendedStreamingConfig {
+    resources.recommend_streaming_config()
 }

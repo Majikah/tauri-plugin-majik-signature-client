@@ -42,8 +42,8 @@ def main() -> None:
 
     if contract.get("plugin") != "majik-signature-client":
         fail("unexpected plugin name in contract")
-    if contract.get("version") != "1.5.0":
-        fail("command contract version is not 1.5.0")
+    if contract.get("version") != "1.5.1":
+        fail("command contract version is not 1.5.1")
     if contract.get("eventChannel") != "majik-signature-client:event":
         fail("unexpected event channel")
     if contract.get("streamProgressEventChannel") != "majik-signature-client:stream-progress":
@@ -139,6 +139,8 @@ def main() -> None:
         "verify_file_embedded_stream",
         "verify_file_detached_stream",
         "cancel_stream",
+        "get_system_profile",
+        "get_recommended_streaming_config",
     }
     missing = sorted(required.difference(names))
     if missing:

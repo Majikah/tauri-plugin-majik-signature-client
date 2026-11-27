@@ -237,6 +237,8 @@ STREAMING_COMMANDS = [
     ("verify_file_embedded_stream", "args: StreamingVerifyArgs", "VerifyResult"),
     ("verify_file_detached_stream", "args: StreamingDetachedVerifyArgs", "VerifyResult"),
     ("cancel_stream", "operation_id: String", "bool"),
+    ("get_system_profile", "", "SystemProfile"),
+    ("get_recommended_streaming_config", "", "RecommendedStreamingConfig"),
 ]
 all_names = names + [name for name, _, _ in STREAMING_COMMANDS]
 assert len(all_names) == len(set(all_names)), "duplicate command names"
@@ -288,8 +290,10 @@ open("src/lib.rs","w").write('''//! # tauri-plugin-majik-signature-client
 mod commands;
 mod handle;
 mod stream_commands;
+mod system_resources;
 
 pub use handle::SigHandle;
+pub use system_resources::{RecommendedStreamingConfig, SystemProfile, SystemResourceManager};
 
 use majik_signature_client::{SignatureClient, SharedConnection};
 use tauri::plugin::{Builder, TauriPlugin};
@@ -310,6 +314,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             let handle = SigHandle::new(client);
             handle.forward_events(app.clone());
             app.manage(handle);
+            app.manage(SystemResourceManager);
             Ok(())
         })
         .on_event(|app, event| {
@@ -327,7 +332,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
 Path("contract").mkdir(exist_ok=True)
 contract = {
     "plugin": "majik-signature-client",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "eventChannel": "majik-signature-client:event",
     "streamProgressEventChannel": "majik-signature-client:stream-progress",
     "eventTypes": [

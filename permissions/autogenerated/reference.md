@@ -153,6 +153,8 @@ Allows every majik-signature-client command.
 - `allow-verify-file-embedded-stream`
 - `allow-verify-file-detached-stream`
 - `allow-cancel-stream`
+- `allow-get-system-profile`
+- `allow-get-recommended-streaming-config`
 
 ## Permission Table
 
@@ -1414,6 +1416,32 @@ Denies the get_issuer command without any pre-configured scope.
 <tr>
 <td>
 
+`majik-signature-client:allow-get-recommended-streaming-config`
+
+</td>
+<td>
+
+Enables the get_recommended_streaming_config command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-get-recommended-streaming-config`
+
+</td>
+<td>
+
+Denies the get_recommended_streaming_config command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `majik-signature-client:allow-get-seal-info`
 
 </td>
@@ -1563,6 +1591,32 @@ Enables the get_stamp command without any pre-configured scope.
 <td>
 
 Denies the get_stamp command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-get-system-profile`
+
+</td>
+<td>
+
+Enables the get_system_profile command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-get-system-profile`
+
+</td>
+<td>
+
+Denies the get_system_profile command without any pre-configured scope.
 
 </td>
 </tr>

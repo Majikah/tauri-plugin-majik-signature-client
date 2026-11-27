@@ -150,4 +150,6 @@ permissions = [
     "allow-verify-file-embedded-stream",
     "allow-verify-file-detached-stream",
     "allow-cancel-stream",
+    "allow-get-system-profile",
+    "allow-get-recommended-streaming-config",
 ]
