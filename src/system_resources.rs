@@ -69,9 +69,7 @@ impl SystemResourceManager {
         };
         let cgroup = detect_cgroup_memory_limit(cgroup_reference_total);
         let available = match (memory_probe_succeeded, cgroup) {
-            (true, Some((limit, usage))) => {
-                host_available.min(limit.saturating_sub(usage))
-            }
+            (true, Some((limit, usage))) => host_available.min(limit.saturating_sub(usage)),
             (true, None) => host_available,
             (false, Some((limit, usage))) => limit.saturating_sub(usage),
             (false, None) => 0,
