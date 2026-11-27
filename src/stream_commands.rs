@@ -19,14 +19,13 @@ use majik_signature_client::{
     StreamingDetachedSignResult, StreamingEmbeddedSignResult, StreamingFileOptions, VerifyResult,
 };
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, Runtime, State};
+use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 
 use crate::handle::SigHandle;
 use crate::system_resources::{RecommendedStreamingConfig, SystemProfile, SystemResourceManager};
 
 type Res<T> = Result<T, SignatureClientError>;
 
-const DEFAULT_CHUNK_SIZE: usize = 1024 * 1024;
 const MIN_CHUNK_SIZE: usize = 64 * 1024;
 const MAX_CHUNK_SIZE: usize = 128 * 1024 * 1024;
 const MAX_ENVELOPE_BYTES: u64 = 16 * 1024 * 1024;

@@ -290,8 +290,10 @@ open("src/lib.rs","w").write('''//! # tauri-plugin-majik-signature-client
 mod commands;
 mod handle;
 mod stream_commands;
+mod system_resources;
 
 pub use handle::SigHandle;
+pub use system_resources::{RecommendedStreamingConfig, SystemProfile, SystemResourceManager};
 
 use majik_signature_client::{SignatureClient, SharedConnection};
 use tauri::plugin::{Builder, TauriPlugin};
@@ -312,6 +314,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             let handle = SigHandle::new(client);
             handle.forward_events(app.clone());
             app.manage(handle);
+            app.manage(SystemResourceManager::default());
             Ok(())
         })
         .on_event(|app, event| {
