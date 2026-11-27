@@ -90,28 +90,30 @@ impl SystemResourceManager {
 }
 
 fn recommended_chunk_size(available_memory: u64) -> usize {
-    // Reserve at least seven eighths of currently available RAM for the OS, webview, application
-    // state and other workloads. Budget for two in-flight buffers (copy + hash), and cap automatic
-    // recommendations at 64 MiB. 128 MiB remains an explicit, fallible override.
-    let budget = (available_memory / 8).min(MAX_STREAMING_MEMORY_BUDGET);
-    let ceiling = (budget / 2).min(MAX_AUTOMATIC_CHUNK_SIZE as u64);
+    // Conservative available-memory tiers. These are starting defaults, not claims about
+    // benchmark-optimal throughput. The application leaves headroom for the OS, webview, user
+    // workloads and container metadata. Explicit overrides remain fallible and are retried.
+    let mib = available_memory / MIB;
 
-    [
-        64 * MIB,
-        32 * MIB,
-        16 * MIB,
-        8 * MIB,
-        4 * MIB,
-        2 * MIB,
-        MIB,
-        512 * 1024,
-        256 * 1024,
-        128 * 1024,
-        MIN_CHUNK_SIZE as u64,
-    ]
-    .into_iter()
-    .find(|candidate| *candidate <= ceiling)
-    .unwrap_or(MIN_CHUNK_SIZE as u64) as usize
+    let recommended = if mib >= 8 * 1024 {
+        64 * MIB
+    } else if mib >= 4 * 1024 {
+        32 * MIB
+    } else if mib >= 2 * 1024 {
+        16 * MIB
+    } else if mib >= 1024 {
+        8 * MIB
+    } else if mib >= 512 {
+        4 * MIB
+    } else if mib >= 256 {
+        2 * MIB
+    } else if mib >= 128 {
+        MIB
+    } else {
+        256 * 1024
+    };
+
+    recommended.clamp(MIN_CHUNK_SIZE, MAX_AUTOMATIC_CHUNK_SIZE)
 }
 
 fn detect_cgroup_memory_limit(total_memory: u64) -> Option<(u64, u64)> {
@@ -148,9 +150,12 @@ mod tests {
 
     #[test]
     fn recommendations_are_bounded_and_scale_with_available_memory() {
-        assert_eq!(recommended_chunk_size(0), MIN_CHUNK_SIZE);
-        assert_eq!(recommended_chunk_size(512 * MIB), 32 * 1024 * 1024);
-        assert_eq!(recommended_chunk_size(4 * 1024 * MIB), 64 * 1024 * 1024);
+        assert_eq!(recommended_chunk_size(0), 256 * 1024);
+        assert_eq!(recommended_chunk_size(512 * MIB), 4 * 1024 * 1024);
+        assert_eq!(recommended_chunk_size(1024 * MIB), 8 * 1024 * 1024);
+        assert_eq!(recommended_chunk_size(2 * 1024 * MIB), 16 * 1024 * 1024);
+        assert_eq!(recommended_chunk_size(4 * 1024 * MIB), 32 * 1024 * 1024);
+        assert_eq!(recommended_chunk_size(8 * 1024 * MIB), 64 * 1024 * 1024);
         assert!(recommended_chunk_size(u64::MAX) <= MAX_AUTOMATIC_CHUNK_SIZE);
     }
 }
