@@ -1,6 +1,6 @@
 {
   "plugin": "majik-signature-client",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "eventChannel": "majik-signature-client:event",
   "streamProgressEventChannel": "majik-signature-client:stream-progress",
   "eventTypes": [
@@ -24,7 +24,7 @@
     "history-log",
     "activity-log"
   ],
-  "commandCount": 149,
+  "commandCount": 151,
   "commands": [
     {
       "name": "open_session",
@@ -776,6 +776,18 @@
       "name": "cancel_stream",
       "parameters": "operation_id: String",
       "result": "bool",
+      "module": "stream_commands"
+    },
+    {
+      "name": "get_system_profile",
+      "parameters": "",
+      "result": "SystemProfile",
+      "module": "stream_commands"
+    },
+    {
+      "name": "get_recommended_streaming_config",
+      "parameters": "",
+      "result": "RecommendedStreamingConfig",
       "module": "stream_commands"
     }
   ]

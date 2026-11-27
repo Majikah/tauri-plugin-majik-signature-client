@@ -2,8 +2,8 @@
 
 **Majikah's Tauri v2 plugin for `majik-signature-client`.** It exposes the Rust signature client to a Tauri webview through typed Tauri commands, a primary event channel, and a dedicated streaming progress channel. Key management, signing, verification, contacts, groups, stamps, logs, preferences, and backup/restore remain in Rust.
 
-- **Crate version:** `1.5.0`
-- **Rust client:** `majik-signature-client = 1.5.0`
+- **Crate version:** `1.5.1`
+- **Rust client:** `majik-signature-client = 1.5.1`
 - **Tauri:** `2.12.7`
 - **Commands:** 149 (including key-client commands, compatibility aliases, and native streaming operations)
 - **Event channel:** `majik-signature-client:event`
@@ -110,7 +110,11 @@ Use the streaming commands when files may be large (including multi-gigabyte MOV
 | `sign_file_detached_stream_with_prior` | Verify a prior file path and sidecar, then append a detached revision |
 | `cancel_stream` | Cancel an active streaming operation by its operation ID |
 
-Each streaming request carries a unique `operationId`, native `inputPath` and `outputPath` values, and optional `streaming` settings: `chunkSize` (64 KiB–8 MiB; default 1 MiB) and `maxBytes` (no default total-file-size cap). Signing accepts an `overwrite` flag; it defaults to `false`. Revision methods require `priorFilePath`; the legacy in-memory `priorFile` / `priorSignedFile` option is rejected for these methods.
+The plugin profiles available RAM (including common cgroup v1/v2 limits) and recommends a bounded automatic chunk size. Explicit TypeScript `chunkSize` overrides are honored within 64 KiB–128 MiB. If an allocation returns the stable `memoryAllocation` error, the plugin retries with the lower system recommendation and then progressively smaller sizes unless `strictChunkSize` is enabled. Progress events identify the attempt and effective chunk size so the frontend can reset progress when a retry begins.
+
+The `get_system_profile` and `get_recommended_streaming_config` commands expose the same profile and recommendation for diagnostics; streaming commands resolve the recommendation internally at operation start.
+
+Each streaming request carries a unique `operationId`, native `inputPath` and `outputPath` values, and optional `streaming` settings: `chunkSize` (64 KiB–128 MiB; omitted defaults to a system recommendation; 1 MiB is the Rust client fallback) and `maxBytes` (no default total-file-size cap). Signing accepts an `overwrite` flag; it defaults to `false`. Revision methods require `priorFilePath`; the legacy in-memory `priorFile` / `priorSignedFile` option is rejected for these methods.
 
 Progress is emitted on the dedicated `majik-signature-client:stream-progress` event channel as `{ type: "stream-progress", payload: { operationId, bytesProcessed, totalBytes } }`. This separate channel avoids refreshing the signature read-model for high-frequency progress notifications. Invoke `cancel_stream` with the same `operationId` to request cancellation. Cancellation is checked between bounded read/write steps and can be requested without acquiring the signature client's mutex. The returned signing result contains signature metadata and output path/size only, never the source file bytes.
 
