@@ -597,7 +597,7 @@ pub async fn verify_file_embedded_stream<R: Runtime>(
                         &input_path,
                         &target.target(None),
                         stream,
-                        source.clone().unwrap_or(HistorySource::Gui),
+                        source.unwrap_or(HistorySource::Gui),
                     )
                 },
             )
