@@ -374,7 +374,9 @@ where
         };
 
         match operation(client, &mut stream) {
-            Err(error) if error.kind() == "memoryAllocation" && attempt_index + 1 < candidates.len() => {
+            Err(error)
+                if error.kind() == "memoryAllocation" && attempt_index + 1 < candidates.len() =>
+            {
                 continue;
             }
             result => return result,
@@ -646,7 +648,6 @@ pub async fn verify_file_detached_stream<R: Runtime>(
 pub fn cancel_stream(state: State<'_, SigHandle>, operation_id: String) -> bool {
     state.cancel_stream(&operation_id)
 }
-
 
 #[tauri::command]
 pub fn get_system_profile(resources: State<'_, SystemResourceManager>) -> SystemProfile {

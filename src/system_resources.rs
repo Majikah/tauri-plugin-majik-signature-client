@@ -61,7 +61,9 @@ impl SystemResourceManager {
             available_memory_bytes: available,
             host_available_memory_bytes: host_available,
             cgroup_memory_limit_bytes: cgroup.map(|(limit, _)| limit),
-            cpu_threads: thread::available_parallelism().map(|n| n.get()).unwrap_or(1),
+            cpu_threads: thread::available_parallelism()
+                .map(|n| n.get())
+                .unwrap_or(1),
             architecture: std::env::consts::ARCH.to_string(),
             operating_system: std::env::consts::OS.to_string(),
         }
@@ -69,8 +71,7 @@ impl SystemResourceManager {
 
     pub fn recommend_streaming_config(&self) -> RecommendedStreamingConfig {
         let profile = self.inspect_system();
-        let memory_budget = (profile.available_memory_bytes / 8)
-            .min(MAX_STREAMING_MEMORY_BUDGET);
+        let memory_budget = (profile.available_memory_bytes / 8).min(MAX_STREAMING_MEMORY_BUDGET);
         let chunk_size = recommended_chunk_size(profile.available_memory_bytes);
 
         RecommendedStreamingConfig {
