@@ -190,7 +190,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             let handle = SigHandle::new(client);
             handle.forward_events(app.clone());
             app.manage(handle);
-            app.manage(SystemResourceManager::default());
+            app.manage(SystemResourceManager);
             Ok(())
         })
         .on_event(|app, event| {
