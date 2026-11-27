@@ -5,7 +5,7 @@
 - **Crate version:** `1.5.1`
 - **Rust client:** `majik-signature-client = 1.5.1`
 - **Tauri:** `2.12.7`
-- **Commands:** 149 (including key-client commands, compatibility aliases, and native streaming operations)
+- **Commands:** 151 (including key-client commands, compatibility aliases, and native streaming operations)
 - **Event channel:** `majik-signature-client:event`
 - **Streaming progress channel:** `majik-signature-client:stream-progress`
 - **License:** Apache-2.0
@@ -14,7 +14,7 @@
 
 ```toml
 [dependencies]
-tauri-plugin-majik-signature-client = "1.5.0"
+tauri-plugin-majik-signature-client = "1.5.1"
 ```
 
 The plugin depends on the published `majik-signature-client` crate. It does not require a sibling checkout or a local `path` dependency.
@@ -110,7 +110,7 @@ Use the streaming commands when files may be large (including multi-gigabyte MOV
 | `sign_file_detached_stream_with_prior` | Verify a prior file path and sidecar, then append a detached revision |
 | `cancel_stream` | Cancel an active streaming operation by its operation ID |
 
-The plugin profiles available RAM (including common cgroup v1/v2 limits) and recommends a bounded automatic chunk size. Explicit TypeScript `chunkSize` overrides are honored within 64 KiB–128 MiB. If an allocation returns the stable `memoryAllocation` error, the plugin retries with the lower system recommendation and then progressively smaller sizes unless `strictChunkSize` is enabled. Progress events identify the attempt and effective chunk size so the frontend can reset progress when a retry begins.
+The plugin profiles available RAM (including common cgroup v1/v2 limits) and recommends a bounded automatic chunk size. Explicit TypeScript `chunkSize` overrides are honored within 64 KiB–128 MiB. If an allocation returns the stable `memoryAllocation` error, the plugin retries with the lower system recommendation and then progressively smaller sizes unless `strictChunkSize` is enabled. Progress events identify the attempt and effective chunk size so the frontend can reset progress when a retry begins. Fallible allocation catches ordinary reservation failures; no in-process Rust strategy can guarantee recovery if the operating system terminates the process under severe memory pressure.
 
 The `get_system_profile` and `get_recommended_streaming_config` commands expose the same profile and recommendation for diagnostics; streaming commands resolve the recommendation internally at operation start.
 
@@ -153,7 +153,7 @@ try {
 
 The generated wire contract is maintained in [`contract/commands.json`](contract/commands.json). It records every command name, its Tauri argument list, return type, plugin version, event channel, and event names.
 
-The 149 commands cover:
+The 151 commands cover:
 
 | Area | Operations |
 |---|---|

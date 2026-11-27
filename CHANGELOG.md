@@ -9,4 +9,3 @@
 - Add retry metadata to streaming progress events and keep atomic output cleanup as the retry boundary.
 - Depend on majik-signature-client 1.5.1 and regenerate command permissions and contract.
 
-[object Object]
