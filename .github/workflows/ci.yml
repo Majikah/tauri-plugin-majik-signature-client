@@ -44,4 +44,4 @@ jobs:
       - name: Check minimum supported Rust version
         run: |
           rustup toolchain install 1.95.0 --profile minimal
-          cargo +1.92.0 check --workspace --all-targets --all-features
+          cargo +1.95.0 check --workspace --all-targets --all-features
