@@ -27,7 +27,7 @@ use crate::system_resources::{RecommendedStreamingConfig, SystemProfile, SystemR
 type Res<T> = Result<T, SignatureClientError>;
 
 const MIN_CHUNK_SIZE: usize = 64 * 1024;
-const MAX_CHUNK_SIZE: usize = 128 * 1024 * 1024;
+const MAX_CHUNK_SIZE: usize = 256 * 1024 * 1024;
 const MAX_ENVELOPE_BYTES: u64 = 16 * 1024 * 1024;
 const STREAM_PROGRESS_EVENT_CHANNEL: &str = "majik-signature-client:stream-progress";
 

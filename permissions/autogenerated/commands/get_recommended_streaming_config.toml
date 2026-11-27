@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-get-recommended-streaming-config"
+description = "Enables the get_recommended_streaming_config command without any pre-configured scope."
+commands.allow = ["get_recommended_streaming_config"]
+
+[[permission]]
+identifier = "deny-get-recommended-streaming-config"
+description = "Denies the get_recommended_streaming_config command without any pre-configured scope."
+commands.deny = ["get_recommended_streaming_config"]
