@@ -184,6 +184,8 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
             stream_commands::cancel_stream,
             stream_commands::get_system_profile,
             stream_commands::get_recommended_streaming_config,
+            stream_commands::sign_batch_detached_paths_stream,
+            stream_commands::verify_mjks_map_paths_stream,
         ])
         .setup(move |app, _api| {
             let client = SignatureClient::with_sqlite(conn)?;
