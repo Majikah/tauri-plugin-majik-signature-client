@@ -850,6 +850,24 @@ pub async fn verify_file_detached_stream<R: Runtime>(
 }
 
 
+#[tauri::command]
+pub fn cancel_stream(state: State<'_, SigHandle>, operation_id: String) -> bool {
+    validate_operation_id(&operation_id).is_ok() && state.cancel_stream(&operation_id)
+}
+
+#[tauri::command]
+pub fn get_system_profile(resources: State<'_, SystemResourceManager>) -> SystemProfile {
+    resources.inspect_system()
+}
+
+#[tauri::command]
+pub fn get_recommended_streaming_config(
+    resources: State<'_, SystemResourceManager>,
+) -> RecommendedStreamingConfig {
+    resources.recommend_streaming_config()
+}
+
+
 /// Native source path paired with the relative path stored in a signature map.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -1288,23 +1306,6 @@ pub async fn verify_mjks_map_paths_stream<R: Runtime>(
             },
         )
     }).await
-}
-
-#[tauri::command]
-pub fn cancel_stream(state: State<'_, SigHandle>, operation_id: String) -> bool {
-    validate_operation_id(&operation_id).is_ok() && state.cancel_stream(&operation_id)
-}
-
-#[tauri::command]
-pub fn get_system_profile(resources: State<'_, SystemResourceManager>) -> SystemProfile {
-    resources.inspect_system()
-}
-
-#[tauri::command]
-pub fn get_recommended_streaming_config(
-    resources: State<'_, SystemResourceManager>,
-) -> RecommendedStreamingConfig {
-    resources.recommend_streaming_config()
 }
 
 
