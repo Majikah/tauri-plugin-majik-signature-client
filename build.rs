@@ -150,6 +150,8 @@ const COMMANDS: &[&str] = &[
     "cancel_stream",
     "get_system_profile",
     "get_recommended_streaming_config",
+    "sign_batch_detached_paths_stream",
+    "verify_mjks_map_paths_stream",
 ];
 
 fn main() {
