@@ -1427,7 +1427,6 @@ pub async fn verify_mjks_map_paths_stream<R: Runtime>(
         .await
 }
 
-
 #[cfg(test)]
 mod boundary_tests {
     use super::*;
@@ -1485,15 +1484,24 @@ mod boundary_tests {
         assert!(validate_batch_inputs(&[StreamingBatchPathInputDto {
             manifest_path: "bad\u{202e}name.pdf".into(),
             ..sample.clone()
-        }]).is_err());
+        }])
+        .is_err());
         assert!(validate_batch_inputs(&[StreamingBatchPathInputDto {
             manifest_path: "../escape.pdf".into(),
             ..sample.clone()
-        }]).is_err());
+        }])
+        .is_err());
         assert!(validate_batch_inputs(&[
-            StreamingBatchPathInputDto { manifest_path: "folder/file.pdf".into(), ..sample.clone() },
-            StreamingBatchPathInputDto { manifest_path: "folder\\file.pdf".into(), ..sample.clone() },
-        ]).is_err());
+            StreamingBatchPathInputDto {
+                manifest_path: "folder/file.pdf".into(),
+                ..sample.clone()
+            },
+            StreamingBatchPathInputDto {
+                manifest_path: "folder\\file.pdf".into(),
+                ..sample.clone()
+            },
+        ])
+        .is_err());
 
         let oversized_metadata = vec![StreamingBatchPathInputDto {
             manifest_path: "m".repeat(4_096),
