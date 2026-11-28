@@ -1,6 +1,6 @@
 {
   "plugin": "majik-signature-client",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "eventChannel": "majik-signature-client:event",
   "streamProgressEventChannel": "majik-signature-client:stream-progress",
   "eventTypes": [
@@ -24,7 +24,7 @@
     "history-log",
     "activity-log"
   ],
-  "commandCount": 151,
+  "commandCount": 153,
   "commands": [
     {
       "name": "open_session",
@@ -788,6 +788,18 @@
       "name": "get_recommended_streaming_config",
       "parameters": "",
       "result": "RecommendedStreamingConfig",
+      "module": "stream_commands"
+    },
+    {
+      "name": "sign_batch_detached_paths_stream",
+      "parameters": "args: StreamingBatchSignArgs",
+      "result": "StreamingBatchSignResultDto",
+      "module": "stream_commands"
+    },
+    {
+      "name": "verify_mjks_map_paths_stream",
+      "parameters": "args: StreamingBatchVerifyArgs",
+      "result": "MapVerifyDto",
       "module": "stream_commands"
     }
   ]

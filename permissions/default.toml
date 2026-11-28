@@ -152,4 +152,6 @@ permissions = [
     "allow-cancel-stream",
     "allow-get-system-profile",
     "allow-get-recommended-streaming-config",
+    "allow-sign-batch-detached-paths-stream",
+    "allow-verify-mjks-map-paths-stream",
 ]

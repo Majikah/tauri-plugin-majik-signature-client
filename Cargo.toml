@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-majik-signature-client"
-version = "1.5.1"
+version = "1.6.0"
 edition = "2021"
 rust-version = "1.95"
 description = "Tauri v2 plugin exposing Majikah's Rust signature client to webview applications."
@@ -16,6 +16,7 @@ include = [
     "LICENSE",
     "CHANGELOG.md",
     "PUBLISHING.md",
+    "SECURITY.md",
     "build.rs",
     "gen.py",
     "src/**/*.rs",
@@ -27,7 +28,7 @@ include = [
 ]
 
 [dependencies]
-majik-signature-client = "1.5.1"
+majik-signature-client = "1.6.0"
 tauri = "2.12.7"
 rusqlite = { version = "0.43.0", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
@@ -36,3 +37,8 @@ sysinfo = "=0.40.4"
 
 [build-dependencies]
 tauri-plugin = { version = "2.7.4", features = ["build"] }
+
+# Development/CI override while the 1.6.0 client is not yet on crates.io.
+# Cargo excludes this patch table from the packaged plugin manifest.
+[patch.crates-io]
+majik-signature-client = { git = "https://github.com/Majikah/majik-signature-client-rs", rev = "26371f08f9fea236386652d4ca6018d86fa5e6f2" }

@@ -2,10 +2,10 @@
 
 **Majikah's Tauri v2 plugin for `majik-signature-client`.** It exposes the Rust signature client to a Tauri webview through typed Tauri commands, a primary event channel, and a dedicated streaming progress channel. Key management, signing, verification, contacts, groups, stamps, logs, preferences, and backup/restore remain in Rust.
 
-- **Crate version:** `1.5.1`
-- **Rust client:** `majik-signature-client = 1.5.1`
+- **Crate version:** `1.6.0`
+- **Rust client:** `majik-signature-client = 1.6.0`
 - **Tauri:** `2.12.7`
-- **Commands:** 151 (including key-client commands, compatibility aliases, and native streaming operations)
+- **Commands:** 153 (including key-client commands, compatibility aliases, and native streaming operations)
 - **Event channel:** `majik-signature-client:event`
 - **Streaming progress channel:** `majik-signature-client:stream-progress`
 - **License:** Apache-2.0
@@ -14,7 +14,7 @@
 
 ```toml
 [dependencies]
-tauri-plugin-majik-signature-client = "1.5.1"
+tauri-plugin-majik-signature-client = "1.6.0"
 ```
 
 The plugin depends on the published `majik-signature-client` crate. It does not require a sibling checkout or a local `path` dependency.
@@ -110,11 +110,11 @@ Use the streaming commands when files may be large (including multi-gigabyte MOV
 | `sign_file_detached_stream_with_prior` | Verify a prior file path and sidecar, then append a detached revision |
 | `cancel_stream` | Cancel an active streaming operation by its operation ID |
 
-The plugin profiles available RAM (including common cgroup v1/v2 limits) and recommends a bounded automatic chunk size. It uses `sysinfo` 0.40.4, whose `System::new()` can fail; a failed probe falls back to finite cgroup memory limits when available, otherwise to a conservative low-memory recommendation. Explicit TypeScript `chunkSize` overrides are honored within 64 KiB–256 MiB. If an allocation returns the stable `memoryAllocation` error, the plugin retries with the lower system recommendation and then progressively smaller sizes unless `strictChunkSize` is enabled. Progress events identify the attempt and effective chunk size so the frontend can reset progress when a retry begins. Fallible allocation catches ordinary reservation failures; no in-process Rust strategy can guarantee recovery if the operating system terminates the process under severe memory pressure.
+The plugin profiles available RAM (including common cgroup v1/v2 limits) and recommends a bounded automatic chunk size. It uses `sysinfo` 0.40.4, whose `System::new()` can fail; a failed probe falls back to finite cgroup memory limits when available, otherwise to a conservative low-memory recommendation. Explicit TypeScript `chunkSize` overrides are honored within 64 KiB–64 MiB. If an allocation returns the stable `memoryAllocation` error, the plugin retries with the lower system recommendation and then progressively smaller sizes unless `strictChunkSize` is enabled. Progress events identify the attempt and effective chunk size so the frontend can reset progress when a retry begins. Fallible allocation catches ordinary reservation failures; no in-process Rust strategy can guarantee recovery if the operating system terminates the process under severe memory pressure.
 
 The `get_system_profile` and `get_recommended_streaming_config` commands expose the same profile and recommendation for diagnostics; streaming commands resolve the recommendation internally at operation start.
 
-Each streaming request carries a unique `operationId`, native `inputPath` and `outputPath` values, and optional `streaming` settings: `chunkSize` (64 KiB–256 MiB; omitted defaults to a system recommendation; 1 MiB is the Rust client fallback) and `maxBytes` (no default total-file-size cap). Signing accepts an `overwrite` flag; it defaults to `false`. Revision methods require `priorFilePath`; the legacy in-memory `priorFile` / `priorSignedFile` option is rejected for these methods.
+Each streaming request carries a unique `operationId`, native `inputPath` and `outputPath` values, and optional `streaming` settings: `chunkSize` (64 KiB–64 MiB; omitted defaults to a system recommendation; 1 MiB is the Rust client fallback) and `maxBytes` (no default total-file-size cap). Signing accepts an `overwrite` flag; it defaults to `false`. Revision methods require `priorFilePath`; the legacy in-memory `priorFile` / `priorSignedFile` option is rejected for these methods.
 
 Progress is emitted on the dedicated `majik-signature-client:stream-progress` event channel as `{ type: "stream-progress", payload: { operationId, bytesProcessed, totalBytes } }`. This separate channel avoids refreshing the signature read-model for high-frequency progress notifications. Invoke `cancel_stream` with the same `operationId` to request cancellation. Cancellation is checked between bounded read/write steps and can be requested without acquiring the signature client's mutex. The returned signing result contains signature metadata and output path/size only, never the source file bytes.
 
@@ -148,6 +148,48 @@ try {
   unlisten();
 }
 ```
+
+
+## Native-path streaming batches (1.6.0)
+
+Version 1.6.0 adds native detached batch signing and MJKSMAP streaming verification. Source documents remain on disk and do not cross the webview IPC boundary. The Rust core validates the full manifest metadata before opening source files.
+
+\x60\x60\x60ts
+const unsubscribe = client.onStreamProgress((progress) => {
+  // Batch events also include fileIndex, totalFiles and path.
+  console.info(progress.path, progress.bytesProcessed, progress.totalBytes);
+});
+
+const signed = await client.signBatchDetachedPathsStream({
+  operationId: crypto.randomUUID(),
+  inputs: [
+    { manifestPath: "contracts/nda.pdf", sourcePath: "/data/contracts/nda.pdf" },
+    { manifestPath: "media/demo.mov", sourcePath: "/data/media/demo.mov" },
+  ],
+  mapOutputPath: "/data/output/contracts.mjksmap",
+  options: { mode: "map", continueOnError: true },
+  streaming: { chunkSize: 4 * 1024 * 1024, maxBytesPerFile: 10 * 1024 * 1024 * 1024 },
+});
+
+const verification = await client.verifyMjksMapPathsStream({
+  operationId: crypto.randomUUID(),
+  mapPath: "/data/output/contracts.mjksmap",
+  inputs: [
+    { manifestPath: "contracts/nda.pdf", sourcePath: "/data/contracts/nda.pdf" },
+    { manifestPath: "media/demo.mov", sourcePath: "/data/media/demo.mov" },
+  ],
+  target: { accountId: client.getActiveAccountId()! }, // trusted key is required
+  streaming: { chunkSize: 4 * 1024 * 1024 },
+});
+
+unsubscribe();
+\x60\x60\x60
+
+Separate output mode requires outputDir instead of mapOutputPath and writes unique numbered sidecars. MJKSMAP verification requires a trusted account, contact or address key; it does not fall back to a self-reported key. Batch inputs are limited to 10,000 entries, 4,096 UTF-16 code units per native/manifest path, 1,024 UTF-16 code units per MIME value, and 8 MiB aggregate path/MIME request metadata. MJKSMAP input is capped at 64 MiB. Chunk sizes are limited to 64 KiB–64 MiB to match the Rust 1.6.0 client. maxBytesPerFile is optional; when omitted, there is no arbitrary total-size cap per source file.
+
+The plugin revalidates streaming inputs in Rust independently of TypeScript facade checks. This includes path/metadata bounds, 1–128 character restricted ASCII operation IDs, a maximum of four active or queued streaming operations, and envelope/MJKSMAP size limits.
+
+**Release-order note:** crates.io currently serves the Rust client at 1.5.1. This repository pins the merged 1.6.0 Git source for CI through a development patch. Publish majik-signature-client 1.6.0 first. Cargo strips the patch table from a packaged plugin manifest, so the released plugin will resolve the crates.io 1.6.0 dependency. Do not publish this plugin until that upstream version is available.
 
 ## Command surface
 
@@ -219,11 +261,16 @@ The contract check verifies both generated command groups, their Tauri handler r
 
 ## Compatibility
 
-- `tauri-plugin-majik-signature-client` `1.5.0`
-- `majik-signature-client` `1.5.0`
+- `tauri-plugin-majik-signature-client` `1.6.0`
+- `majik-signature-client` `1.6.0`
 - Tauri `2.12.7`
-- Rust `1.92` or newer
+- Rust `1.95` or newer
 
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
+
+
+## Security
+
+The Rust plugin treats the IPC payload as untrusted even when calls originate from the companion TypeScript package. Native file paths are resolved with the host process's filesystem privileges; this plugin does not provide a filesystem sandbox. Configure Tauri capabilities and OS permissions accordingly. See [SECURITY.md](SECURITY.md) for the trust model, bounded input policies and vulnerability-reporting instructions.
