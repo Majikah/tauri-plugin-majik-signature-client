@@ -1270,3 +1270,95 @@ pub fn get_recommended_streaming_config(
 ) -> RecommendedStreamingConfig {
     resources.recommend_streaming_config()
 }
+
+
+#[cfg(test)]
+mod boundary_tests {
+    use super::*;
+
+    #[test]
+    fn rejects_empty_overlong_and_unsafe_native_paths() {
+        assert!(validate_native_path("", "inputPath").is_err());
+        assert!(validate_native_path(&"a".repeat(MAX_NATIVE_PATH_CHARS + 1), "inputPath").is_err());
+        assert!(validate_native_path("bad\0path", "inputPath").is_err());
+        assert!(validate_native_path("bad\u{202e}path", "inputPath").is_err());
+        assert!(validate_native_path("folder/document.pdf", "inputPath").is_ok());
+    }
+
+    #[test]
+    fn rejects_bad_operation_ids_and_chunks_outside_core_limits() {
+        assert!(validate_operation_id("").is_err());
+        assert!(validate_operation_id(&"x".repeat(MAX_OPERATION_ID_BYTES + 1)).is_err());
+        assert!(validate_operation_id("op:1234-abc_1").is_ok());
+        assert!(validate_operation_id("bad\nid").is_err());
+        assert!(validate_streaming_options(&StreamingFileOptionsDto {
+            chunk_size: Some(MAX_CHUNK_SIZE + 1),
+            ..Default::default()
+        }).is_err());
+        assert!(validate_streaming_options(&StreamingFileOptionsDto {
+            chunk_size: Some(MIN_CHUNK_SIZE),
+            ..Default::default()
+        }).is_ok());
+        assert!(validate_batch_streaming_options(&BatchStreamingFileOptionsDto {
+            chunk_size: Some(MAX_CHUNK_SIZE + 1),
+            ..Default::default()
+        }).is_err());
+    }
+
+    #[test]
+    fn rejects_batch_overflow_and_long_or_malicious_metadata_before_opening_sources() {
+        let sample = StreamingBatchPathInputDto {
+            manifest_path: "folder/file.bin".into(),
+            source_path: "not-opened.bin".into(),
+            mime_type: None,
+        };
+        assert!(validate_batch_inputs(&[]).is_err());
+        assert!(validate_batch_inputs(&vec![sample.clone(); MAX_STREAMING_BATCH_FILES + 1]).is_err());
+        assert!(validate_batch_inputs(&[StreamingBatchPathInputDto {
+            source_path: "x".repeat(MAX_NATIVE_PATH_CHARS + 1),
+            ..sample.clone()
+        }]).is_err());
+        assert!(validate_batch_inputs(&[StreamingBatchPathInputDto {
+            manifest_path: "bad\u{202e}name.pdf".into(),
+            ..sample.clone()
+        }]).is_err());
+
+        let oversized_metadata = vec![StreamingBatchPathInputDto {
+            manifest_path: "m".repeat(4_096),
+            source_path: "s".repeat(4_096),
+            mime_type: None,
+        }; 1_100];
+        assert!(validate_batch_inputs(&oversized_metadata).is_err());
+    }
+
+    #[test]
+    fn rejects_large_signing_metadata_and_inline_envelopes_before_decode() {
+        assert!(validate_bounded_text(&"m".repeat(1_025), "mimeType", 1_024).is_err());
+        assert!(validate_signing_metadata(None, None, None, None, Some(&"n".repeat(4_097)), 0).is_err());
+
+        let oversized = FileInput::Bytes {
+            data: "A".repeat((MAX_ENVELOPE_BYTES.div_ceil(3) * 4) as usize + 1),
+            name: None,
+            mime_type: None,
+        };
+        assert!(validate_file_input_metadata(&oversized, "existingEnvelope").is_err());
+
+        let malformed_base64 = FileInput::Bytes {
+            data: "not-base64!?".into(),
+            name: None,
+            mime_type: None,
+        };
+        assert!(malformed_base64.load_with(LoadLimits {
+            max_bytes: MAX_ENVELOPE_BYTES,
+            allow_empty: false,
+        }).is_err());
+    }
+
+    #[test]
+    fn rejects_overlong_trusted_verification_targets() {
+        assert!(validate_verification_target(&VerifyTargetDto {
+            address: Some("x".repeat(4_097)),
+            ..Default::default()
+        }).is_err());
+    }
+}
