@@ -261,8 +261,8 @@ The contract check verifies both generated command groups, their Tauri handler r
 
 ## Compatibility
 
-- `tauri-plugin-majik-signature-client` `1.5.0`
-- `majik-signature-client` `1.5.0`
+- `tauri-plugin-majik-signature-client` `1.6.0`
+- `majik-signature-client` `1.6.0`
 - Tauri `2.12.7`
 - Rust `1.92` or newer
 
