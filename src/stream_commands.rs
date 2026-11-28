@@ -1179,7 +1179,7 @@ where
         }
         let mut on_progress = |progress: StreamingBatchProgress| {
             previous_progress = Some((
-                progress.index,
+                progress.file_index,
                 progress.total_files,
                 progress.path.clone(),
                 progress.total_bytes,
@@ -1195,7 +1195,7 @@ where
                         attempt: attempt + 1,
                         effective_chunk_size: chunk_size,
                         adaptive_fallback: fallback,
-                        file_index: Some(progress.index),
+                        file_index: Some(progress.file_index),
                         total_files: Some(progress.total_files),
                         path: Some(progress.path),
                     },
