@@ -17,9 +17,9 @@ const MAX_ACTIVE_STREAMS: usize = 4;
 fn valid_operation_id(value: &str) -> bool {
     !value.is_empty()
         && value.len() <= MAX_OPERATION_ID_BYTES
-        && value.bytes().all(|byte| {
-            byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b':')
-        })
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b':'))
 }
 
 #[derive(Clone)]
@@ -149,8 +149,6 @@ impl SigHandle {
         }
     }
 }
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
