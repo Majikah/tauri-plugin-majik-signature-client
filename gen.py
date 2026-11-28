@@ -239,6 +239,8 @@ STREAMING_COMMANDS = [
     ("cancel_stream", "operation_id: String", "bool"),
     ("get_system_profile", "", "SystemProfile"),
     ("get_recommended_streaming_config", "", "RecommendedStreamingConfig"),
+    ("sign_batch_detached_paths_stream", "args: StreamingBatchSignArgs", "StreamingBatchSignResultDto"),
+    ("verify_mjks_map_paths_stream", "args: StreamingBatchVerifyArgs", "MapVerifyDto"),
 ]
 all_names = names + [name for name, _, _ in STREAMING_COMMANDS]
 assert len(all_names) == len(set(all_names)), "duplicate command names"
@@ -332,7 +334,7 @@ pub fn init<R: Runtime>(conn: SharedConnection) -> TauriPlugin<R> {
 Path("contract").mkdir(exist_ok=True)
 contract = {
     "plugin": "majik-signature-client",
-    "version": "1.5.1",
+    "version": "1.6.0",
     "eventChannel": "majik-signature-client:event",
     "streamProgressEventChannel": "majik-signature-client:stream-progress",
     "eventTypes": [
