@@ -1503,11 +1503,14 @@ mod boundary_tests {
         ])
         .is_err());
 
-        let oversized_metadata = vec![StreamingBatchPathInputDto {
-            manifest_path: "m".repeat(4_096),
-            source_path: "s".repeat(4_096),
-            mime_type: None,
-        }; 1_100];
+        let oversized_metadata = vec![
+            StreamingBatchPathInputDto {
+                manifest_path: "m".repeat(4_096),
+                source_path: "s".repeat(4_096),
+                mime_type: None,
+            };
+            1_100
+        ];
         assert!(validate_batch_inputs(&oversized_metadata).is_err());
     }
 
