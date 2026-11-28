@@ -979,10 +979,18 @@ fn validate_batch_streaming_options(options: &BatchStreamingFileOptionsDto) -> R
 
 fn read_mjksmap_bounded(path: &str) -> Res<Vec<u8>> {
     validate_native_path(path, "mapPath")?;
+    // Inspect the path before opening it so directories, devices and FIFOs are rejected early.
+    let path_metadata = std::fs::metadata(path)
+        .map_err(|error| SignatureClientError::Invalid(format!("Unable to inspect MJKSMAP path: {error}")))?;
+    if !path_metadata.is_file() || path_metadata.len() == 0 || path_metadata.len() > MAX_MAP_BYTES {
+        return Err(SignatureClientError::Invalid(
+            "MJKSMAP input must be a non-empty regular file no larger than 64 MiB".into(),
+        ));
+    }
     let file = File::open(path)
         .map_err(|error| SignatureClientError::Invalid(format!("Unable to open MJKSMAP: {error}")))?;
     let metadata = file.metadata()
-        .map_err(|error| SignatureClientError::Invalid(format!("Unable to inspect MJKSMAP: {error}")))?;
+        .map_err(|error| SignatureClientError::Invalid(format!("Unable to inspect opened MJKSMAP: {error}")))?;
     if !metadata.is_file() || metadata.len() == 0 || metadata.len() > MAX_MAP_BYTES {
         return Err(SignatureClientError::Invalid(
             "MJKSMAP input must be a non-empty regular file no larger than 64 MiB".into(),
@@ -1014,7 +1022,7 @@ fn batch_inputs(inputs: &[StreamingBatchPathInputDto]) -> Vec<StreamingBatchPath
 
 fn run_with_batch_streaming_options<R, T, F>(
     client: &mut SignatureClient,
-    app: AppHandle<R>,
+    app: &AppHandle<R>,
     operation_id: String,
     cancellation: Arc<AtomicBool>,
     config: BatchStreamingFileOptionsDto,
@@ -1146,7 +1154,7 @@ pub async fn sign_batch_detached_paths_stream<R: Runtime>(
             continue_on_error: wire_options.continue_on_error,
         };
         run_with_batch_streaming_options(
-            client, app, progress_id, cancellation, streaming,
+            client, &app, progress_id, cancellation, streaming,
             move |client, stream_options| {
                 match client.sign_batch_detached_paths_stream(&inputs, &batch_options, &context, stream_options)? {
                     BatchSignResult::Map { map_blob, failures, .. } => {
@@ -1221,7 +1229,7 @@ pub async fn verify_mjks_map_paths_stream<R: Runtime>(
         let map_bytes = read_mjksmap_bounded(&map_path)?;
         let resolved = ResolvedTarget::new(client, &target)?;
         run_with_batch_streaming_options(
-            client, app, progress_id, cancellation, streaming,
+            client, &app, progress_id, cancellation, streaming,
             move |client, stream_options| {
                 let result = client.verify_mjks_map_paths_stream(
                     majik_signature_client::MjksMapInput::Bytes(map_bytes.clone()),
