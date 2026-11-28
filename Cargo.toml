@@ -16,6 +16,7 @@ include = [
     "LICENSE",
     "CHANGELOG.md",
     "PUBLISHING.md",
+    "SECURITY.md",
     "build.rs",
     "gen.py",
     "src/**/*.rs",
