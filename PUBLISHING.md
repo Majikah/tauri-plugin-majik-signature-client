@@ -28,3 +28,8 @@ The local source-generation consistency check is separate from Cargo packaging:
 python3 gen.py
 python3 tests/check_generated.py
 ```
+
+
+## Upstream release gate
+
+The 1.6.0 plugin source currently uses the merged majik-signature-client Git revision through a development [patch.crates-io] entry. Before publishing, verify that majik-signature-client 1.6.0 is available on crates.io and that it includes sign_batch_detached_paths_stream and verify_mjks_map_paths_stream. Cargo omits [patch] from the packaged manifest. Do not publish this plugin before the upstream client release.
