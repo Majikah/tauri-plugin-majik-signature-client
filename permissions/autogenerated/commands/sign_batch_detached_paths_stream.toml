@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-sign-batch-detached-paths-stream"
+description = "Enables the sign_batch_detached_paths_stream command without any pre-configured scope."
+commands.allow = ["sign_batch_detached_paths_stream"]
+
+[[permission]]
+identifier = "deny-sign-batch-detached-paths-stream"
+description = "Denies the sign_batch_detached_paths_stream command without any pre-configured scope."
+commands.deny = ["sign_batch_detached_paths_stream"]

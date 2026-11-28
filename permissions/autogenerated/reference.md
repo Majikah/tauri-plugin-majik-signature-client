@@ -155,6 +155,8 @@ Allows every majik-signature-client command.
 - `allow-cancel-stream`
 - `allow-get-system-profile`
 - `allow-get-recommended-streaming-config`
+- `allow-sign-batch-detached-paths-stream`
+- `allow-verify-mjks-map-paths-stream`
 
 ## Permission Table
 
@@ -3106,6 +3108,32 @@ Denies the sign_batch_detached command without any pre-configured scope.
 <tr>
 <td>
 
+`majik-signature-client:allow-sign-batch-detached-paths-stream`
+
+</td>
+<td>
+
+Enables the sign_batch_detached_paths_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-sign-batch-detached-paths-stream`
+
+</td>
+<td>
+
+Denies the sign_batch_detached_paths_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `majik-signature-client:allow-sign-file`
 
 </td>
@@ -4009,6 +4037,32 @@ Enables the verify_mjks_map_order command without any pre-configured scope.
 <td>
 
 Denies the verify_mjks_map_order command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:allow-verify-mjks-map-paths-stream`
+
+</td>
+<td>
+
+Enables the verify_mjks_map_paths_stream command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`majik-signature-client:deny-verify-mjks-map-paths-stream`
+
+</td>
+<td>
+
+Denies the verify_mjks_map_paths_stream command without any pre-configured scope.
 
 </td>
 </tr>
