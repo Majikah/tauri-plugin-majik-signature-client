@@ -1,6 +1,7 @@
 //! Native-path streaming commands. These deliberately accept paths rather than FileInput so
 //! large files never travel through the webview as base64 or get materialized by FileInput::load.
 
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -941,6 +942,27 @@ pub struct StreamingBatchSignResultDto {
     failures: Vec<FailureDto>,
 }
 
+/// Normalize aliases and reject manifest traversal before any native source is opened.
+fn validate_manifest_path(path: &str) -> Res<String> {
+    validate_bounded_text(path, "manifestPath", MAX_NATIVE_PATH_CHARS)?;
+    let mut normalized = path.replace('\\', "/").trim().to_owned();
+    if normalized.as_bytes().get(1) == Some(&b':')
+        && normalized
+            .as_bytes()
+            .first()
+            .is_some_and(u8::is_ascii_alphabetic)
+    {
+        normalized.drain(..2);
+    }
+    normalized = normalized.trim_start_matches('/').to_owned();
+    if normalized.is_empty() || normalized.split('/').any(|segment| segment == "..") {
+        return Err(SignatureClientError::Invalid(
+            "manifestPath must normalize to a non-traversing relative path".into(),
+        ));
+    }
+    Ok(normalized)
+}
+
 fn validate_batch_inputs(inputs: &[StreamingBatchPathInputDto]) -> Res<()> {
     if inputs.is_empty() || inputs.len() > MAX_STREAMING_BATCH_FILES {
         return Err(SignatureClientError::Invalid(format!(
@@ -948,8 +970,14 @@ fn validate_batch_inputs(inputs: &[StreamingBatchPathInputDto]) -> Res<()> {
         )));
     }
     let mut total_metadata_bytes = 0usize;
+    let mut manifest_paths = HashSet::with_capacity(inputs.len());
     for input in inputs {
-        validate_bounded_text(&input.manifest_path, "manifestPath", 4_096)?;
+        let normalized_path = validate_manifest_path(&input.manifest_path)?;
+        if !manifest_paths.insert(normalized_path.clone()) {
+            return Err(SignatureClientError::Invalid(format!(
+                "Duplicate manifestPath after normalization: {normalized_path}"
+            )));
+        }
         validate_native_path(&input.source_path, "sourcePath")?;
         if let Some(mime) = input.mime_type.as_deref() {
             validate_bounded_text(mime, "mimeType", 1_024)?;
@@ -1330,6 +1358,14 @@ mod boundary_tests {
             manifest_path: "bad\u{202e}name.pdf".into(),
             ..sample.clone()
         }]).is_err());
+        assert!(validate_batch_inputs(&[StreamingBatchPathInputDto {
+            manifest_path: "../escape.pdf".into(),
+            ..sample.clone()
+        }]).is_err());
+        assert!(validate_batch_inputs(&[
+            StreamingBatchPathInputDto { manifest_path: "folder/file.pdf".into(), ..sample.clone() },
+            StreamingBatchPathInputDto { manifest_path: "folder\\file.pdf".into(), ..sample.clone() },
+        ]).is_err());
 
         let oversized_metadata = vec![StreamingBatchPathInputDto {
             manifest_path: "m".repeat(4_096),
