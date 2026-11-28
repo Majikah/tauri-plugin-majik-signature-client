@@ -10,6 +10,18 @@ use majik_signature_client::ipc::EVENT_CHANNEL;
 use majik_signature_client::{SigEvent, SignatureClient, SignatureClientError};
 use tauri::{AppHandle, Emitter, Runtime};
 
+const MAX_OPERATION_ID_BYTES: usize = 128;
+const MAX_ACTIVE_STREAMS: usize = 4;
+
+/// Operation IDs are bounded correlation tokens, never filesystem paths or arbitrary user text.
+fn valid_operation_id(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= MAX_OPERATION_ID_BYTES
+        && value.bytes().all(|byte| {
+            byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b':')
+        })
+}
+
 #[derive(Clone)]
 pub struct SigHandle {
     inner: Arc<Mutex<SignatureClient>>,
@@ -51,9 +63,9 @@ impl SigHandle {
             + Send
             + 'static,
     {
-        if operation_id.trim().is_empty() || operation_id.len() > 128 {
+        if !valid_operation_id(&operation_id) {
             return Err(SignatureClientError::Invalid(
-                "Streaming operationId must contain 1–128 bytes".into(),
+                "Streaming operationId must be 1–128 restricted ASCII bytes".into(),
             ));
         }
 
@@ -64,8 +76,13 @@ impl SigHandle {
                 .lock()
                 .map_err(|_| SignatureClientError::Poisoned)?;
             if active.contains_key(&operation_id) {
+                return Err(SignatureClientError::Invalid(
+                    "A streaming operation with this operationId is already active".into(),
+                ));
+            }
+            if active.len() >= MAX_ACTIVE_STREAMS {
                 return Err(SignatureClientError::Invalid(format!(
-                    "A streaming operation is already active with operationId \"{operation_id}\""
+                    "The plugin already has {MAX_ACTIVE_STREAMS} active or queued streaming operations"
                 )));
             }
             active.insert(operation_id.clone(), Arc::clone(&cancellation));
@@ -91,6 +108,9 @@ impl SigHandle {
     /// Request cancellation without taking the client mutex. The active operation checks this
     /// flag between bounded read/write operations; false means the ID is not currently active.
     pub fn cancel_stream(&self, operation_id: &str) -> bool {
+        if !valid_operation_id(operation_id) {
+            return false;
+        }
         let Ok(active) = self.streams.lock() else {
             return false;
         };
@@ -127,5 +147,25 @@ impl SigHandle {
             guard.keys_mut().lock_all_accounts();
             let _ = guard.lock_stamps();
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn operation_ids_are_ascii_bounded_and_non_empty() {
+        assert!(!valid_operation_id(""));
+        assert!(!valid_operation_id(&"x".repeat(MAX_OPERATION_ID_BYTES + 1)));
+        assert!(!valid_operation_id("abc\ncommand"));
+        assert!(!valid_operation_id("🚀"));
+        assert!(valid_operation_id("op-1_2.3:4"));
+    }
+
+    #[test]
+    fn active_stream_registry_has_a_small_finite_ceiling() {
+        assert_eq!(MAX_ACTIVE_STREAMS, 4);
     }
 }
